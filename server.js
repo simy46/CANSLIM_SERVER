@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5020;
 console.log(PORT)
 const corsOptions = {
     allowedHeaders: ['Content-Type', 'If-None-Match'],
-    exposedHeaders: ['ETag'],
+    exposedHeaders: ['ETag'], 
     origin: '*',
 };
 
