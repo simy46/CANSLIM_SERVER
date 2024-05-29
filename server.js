@@ -11,7 +11,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 5020;
+const PORT = process.env.PORT || 5020;
+console.log(PORT)
 const corsOptions = {
     allowedHeaders: ['Content-Type', 'If-None-Match'],
     exposedHeaders: ['ETag'],
