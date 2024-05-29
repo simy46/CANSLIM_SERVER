@@ -19,30 +19,10 @@ const corsOptions = {
     origin: '*',
 };
 
-app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 
-// Serve static files
-app.get('/', (_, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-app.get('/market-news', (_, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'market-news.html'));
-});
-app.get('/crypto-analysis', (_, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'crypto-analysis.html'));
-});
-app.get('/about', (_, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'about.html'));
-});
-app.get('/stock', (_, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'stock.html'));
-});
-app.get('/trending', (_, res) => {
-    res.sendFile(path.join(__dirname, '..', 'site-web', 'trending.html'));
-});
 
 /**
  * Middleware to log new HTTP requests.
