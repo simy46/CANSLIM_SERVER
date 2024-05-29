@@ -23,6 +23,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 
+app.get('/', (req, res) => {
+    res.status(200).send('Welcome to the CANSLIM Calculator API');
+});
+
 
 /**
  * Middleware to log new HTTP requests.
