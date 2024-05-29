@@ -17,6 +17,7 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'If-None-Match'],
     exposedHeaders: ['ETag'], 
     origin: '*',
+    optionsSuccessStatus: 200
 };
 
 app.use(express.json());
