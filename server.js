@@ -7,9 +7,6 @@ import { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers 
 import { checkStock } from './services/checklistCalculator.js';
 import HTTP_STATUS from './services/http.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 const PORT = process.env.PORT || 5020;
 console.log(PORT)

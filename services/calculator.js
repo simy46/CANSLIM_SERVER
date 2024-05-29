@@ -288,23 +288,28 @@ export function calculateSMRRating(salesGrowth, margin, roe) {
 }
 
 
-export function calculateIncreaseInFundsOwnership(fundData) {
-    if (fundData.length < 2) {
-        return { value: null };
+export function calculateIncreaseInFundsOwnership(ownershipList) {
+    if (ownershipList.length < 2) {
+        return { value: null }; // Not enough data
     }
 
-    const recentFunds = fundData[fundData.length - 1];
-    const previousFunds = fundData[fundData.length - 2];
+    // sort by date
+    ownershipList.sort((a, b) => new Date(a.reportDate) - new Date(b.reportDate));
 
-    const increaseInFunds = recentFunds > previousFunds;
+    // Get the two most recent records
+    const latestOwnership = ownershipList[ownershipList.length - 1];
+    const previousOwnership = ownershipList[ownershipList.length - 2];
 
-    const arr = [
-        `${recentFunds.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $`,
-        `${previousFunds.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $`,
-    ];
+    // Calculate the increase
+    const increase = latestOwnership.position - previousOwnership.position;
+    const percentageIncrease = (increase / previousOwnership.position) * 100;
 
-    return { value: arr, bool: increaseInFunds };
+    // Determine if the increase is positive
+    const bool = increase > 0;
+
+    return { value: percentageIncrease.toFixed(2) + '%', bool: bool };
 }
+
 
 export function calculateAccumulationDistributionRating(volumeData) {
     if (volumeData.length < 2) {
@@ -319,6 +324,52 @@ export function calculateAccumulationDistributionRating(volumeData) {
                    recentVolume >= averageVolume ? 'C' : 'D';
 
     return { value: rating, bool: ['A', 'B', 'C'].includes(rating) };
+}
+
+export function calculateADRating(historicalPrices) {
+    if (historicalPrices.length < 2) {
+        return { value: null }; // Not enough data
+    }
+
+    // Last 100 jours si disponibles
+    const recentPrices = historicalPrices.slice(-100);
+    const adlValues = calculateADL(recentPrices);
+
+    const recentADL = adlValues[adlValues.length - 1];
+    const previousADL = adlValues[adlValues.length - 2];
+
+    const adlChange = recentADL - previousADL;
+    const rating = adlChange > 0 ? (adlChange >= averageADLChange(adlValues) * 1.2 ? 'A' : 'B') : (adlChange <= -averageADLChange(adlValues) * 1.2 ? 'D' : 'C');
+    
+    return { value: rating, bool: ['A', 'B', 'C'].includes(rating) };
+}
+
+function calculateADL(historicalPrices) {
+    let adl = 0;
+    const adlValues = [];
+
+    for (let i = 0; i < historicalPrices.length; i++) {
+        const high = historicalPrices[i].high;
+        const low = historicalPrices[i].low;
+        const close = historicalPrices[i].close;
+        const volume = historicalPrices[i].volume;
+
+        const moneyFlowMultiplier = ((close - low) - (high - close)) / (high - low);
+        const moneyFlowVolume = moneyFlowMultiplier * volume;
+
+        adl += moneyFlowVolume;
+        adlValues.push(adl);
+    }
+
+    return adlValues;
+}
+
+function averageADLChange(adlValues) {
+    const changes = [];
+    for (let i = 1; i < adlValues.length; i++) {
+        changes.push(adlValues[i] - adlValues[i - 1]);
+    }
+    return changes.reduce((sum, change) => sum + change, 0) / changes.length;
 }
 
 

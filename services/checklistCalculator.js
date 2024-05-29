@@ -27,12 +27,11 @@ async function getStockData(ticker) {
         const stockData = await yahooFinance.quoteSummary(ticker, queryOptions, { validateResult: false });
 
         const nameAndTicker = await yahooFinance.quote(ticker);
-
-
         stockData.nameAndTicker = nameAndTicker;
 
+        // Historical prices and other historical data can remain the same
         const historicalPrices = await yahooFinance.historical(ticker, {
-            period1: '2010-01-01', // Can be modified
+            period1: '2015-01-01', // Can be modified
             period2: new Date().toISOString().split('T')[0],
             interval: '1mo',
         });
@@ -71,6 +70,8 @@ async function getStockData(ticker) {
 }
 
 
+
+
 function calculateChecklist(stockData) {
     const benchmarks = {
         currentSharePrice: 15,
@@ -81,9 +82,12 @@ function calculateChecklist(stockData) {
     const summaryDetail = stockData.summaryDetail || {};
     const price = stockData.price || {};
     const returnOnEquity = stockData.financialData.returnOnEquity;
-    const historicalEPS = stockData.historicalEarnings.map(entry => entry.epsActual);
     const quarterlyData = stockData.earnings.financialsChart.quarterly;
-    const volumeData = stockData.historicalPrices.map(price => price.volume);
+    const ownershipList = stockData.fundOwnership.ownershipList;
+    console.log(ownershipList)
+
+
+    const historicalEPS = stockData.historicalEarnings.map(entry => entry.epsActual);
     const currentVolume = summaryDetail.volume;
     const currentPrice = price.regularMarketPrice;
     const averageVolume = summaryDetail.averageVolume;
@@ -139,16 +143,20 @@ function calculateChecklist(stockData) {
 
 
                 // Big Rock 2 //
-        // increaseInFundsOwnership: calculations.calculateIncreaseInFundsOwnership(fundOwnershipData),
-        // accumulationDistributionRating: calculations.calculateAccumulationDistributionRating(volumeData),
+        increaseInFundsOwnership: calculations.calculateIncreaseInFundsOwnership(ownershipList),
+        accumulationDistributionRating: calculations.calculateADRating(stockData.historicalPrices),         // Accumulation/Distribution Rating of A, B or C
         relativeStrengthRating: relativeStrengthRating,
         currentSharePrice: currentSharePrice,                                                               // Share price above $15
         averageDailyVolume: averageDailyVolume,                                                             // Average daily volume of 400,000 shares or more               // Big Rock 3 // manque 2 attributs //
 
 
+                // Big Rock 3 //
+
         // volumeAboveAverage: calculations.calculateVolumeAboveAverage(currentVolume, averageVolume),
 
         // withinBuyPoint: calculations.calculateWithinBuyPoint(currentPrice, idealBuyPoint),
+
+
         // threeQuarterEpsGrowth: calculations.calculateThreeQuarterEpsGrowth(stockData),
 
     };
