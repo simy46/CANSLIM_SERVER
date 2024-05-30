@@ -9,7 +9,7 @@ import HTTP_STATUS from './services/http.js';
 
 const app = express();
 const PORT = process.env.PORT || 5020;
-console.log(PORT)
+console.log(`PORT : ${PORT}`)
 const corsOptions = {
     allowedHeaders: ['Content-Type', 'If-None-Match'],
     exposedHeaders: ['ETag'], 
