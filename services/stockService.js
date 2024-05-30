@@ -79,4 +79,4 @@ async function getStockNews(ticker) {
     return news
 }
 
-export { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers };
+export { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers, getTrendingStocks };

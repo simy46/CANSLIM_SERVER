@@ -36,21 +36,21 @@ export function calculateAverageDailyVolume(averageVolume, benchmarkVolume) {
 
 export function calculateEpsRating(stockData, ratingThresholds) {
     if (!stockData.earnings?.financialsChart?.quarterly || !stockData.defaultKeyStatistics?.sharesOutstanding) {
-        return { value: null, bool: false }; // Bad data
+        return { value: null }; // Bad data
     }
 
     const quarterlyEarnings = stockData.earnings.financialsChart.quarterly;
     const sharesOutstanding = stockData.defaultKeyStatistics.sharesOutstanding;
 
     if (quarterlyEarnings.length < 4) { // Not enough data
-        return { value: null, bool: false };
+        return { value: null };
     }
 
     const quarterlyEps = quarterlyEarnings.map(e => e.earnings / sharesOutstanding);
     const validEps = quarterlyEps.filter(eps => eps !== null && !isNaN(eps) && eps > 0);
 
     if (validEps.length < 4) {
-        return { value: null, bool: false }; // Not enough data
+        return { value: null }; // Not enough data
     }
 
     const growthRates = validEps.slice(1).map((eps, i) => {
@@ -68,13 +68,13 @@ export function calculateEpsRating(stockData, ratingThresholds) {
 
 export function calculateEpsGrowth(stockData) {
     if (!stockData.earnings || !stockData.earnings.earningsChart || !stockData.earnings.earningsChart.quarterly) {
-        return { value: null, bool: false }; // Bad data
+        return { value: null }; // Bad data
     }
 
     const quarterlyEarnings = stockData.earnings.earningsChart.quarterly;
 
     if (quarterlyEarnings.length < 2) {
-        return { value: null, bool: false }; // Not enough data
+        return { value: null }; // Not enough data
     }
 
     // Retrieve current EPS and EPS from a year ago
@@ -83,7 +83,7 @@ export function calculateEpsGrowth(stockData) {
 
     // Check if data is valid
     if (currentEps == null || yearAgoEps == null) {
-        return { value: null, bool: false }; // Invalid data
+        return { value: null }; // Invalid data
     }
 
     // Calculate EPS growth
@@ -141,45 +141,45 @@ export function calculateThreeQuarterEpsGrowth(stockData) {
 
 export function calculateAverageAnnualEpsGrowth(stockData) {
     if (!stockData.earnings || !stockData.earnings.financialsChart || !stockData.earnings.financialsChart.yearly) {
-        console.log('BAD DATA')
-        return { value: null, bool: false }; // Bad data
+        return { value: null }; // Bad data
     }
 
     const yearlyEarnings = stockData.earnings.financialsChart.yearly;
 
     // We need at least 4 years of data to calculate growth over the last 3 years
     if (yearlyEarnings.length < 4) {
-        console.log('NOT ENOUGH DATA')
-        return { value: null, bool: false }; // Not enough data
+        return { value: null }; // Not enough data
     }
 
     // Extract EPS values for the last 4 years
     const recentEpsValues = yearlyEarnings.slice(-4).map(entry => entry.earnings);
-    console.log(recentEpsValues)
+
+    // Filter out years with negative EPS
+    const filteredEpsValues = recentEpsValues.filter(eps => eps > 0);
+
+    // Ensure we still have enough data after filtering
+    if (filteredEpsValues.length < 2) {
+        return { value: null }; // Not enough valid data
+    }
 
     // Validate EPS values
-    if (recentEpsValues.some(eps => eps == null || eps === 0)) {
-        console.log('INVALID DATA')
-        return { value: null, bool: false }; // Invalid data
+    if (filteredEpsValues.some(eps => eps == null || eps === 0)) {
+        return { value: null }; // Invalid data
     }
 
     // Calculate average annual growth
-    const initialEps = recentEpsValues[0];
-    const finalEps = recentEpsValues[recentEpsValues.length - 1];
-    const years = recentEpsValues.length - 1;
-
-    console.log(initialEps)
-    console.log(finalEps)
-    console.log(years)
+    const initialEps = filteredEpsValues[0];
+    const finalEps = filteredEpsValues[filteredEpsValues.length - 1];
+    const years = filteredEpsValues.length - 1;
 
     const averageAnnualGrowth = ((Math.pow(finalEps / initialEps, 1 / years) - 1) * 100);
-    console.log(averageAnnualGrowth)
 
     const value = `${averageAnnualGrowth.toFixed(2)}%`;
     const bool = averageAnnualGrowth >= 25;
 
     return { value: value, bool: bool };
 }
+
 
 
 
@@ -208,13 +208,13 @@ export function calculateSalesGrowth(earningsData) {
 
 export function calculateRelativeStrengthRating(stockData) {
     if (!stockData.historicalPrices) {
-        return { value: null, bool: false };
+        return { value: null };
     }
 
     const prices = stockData.historicalPrices.map(price => price.close);
 
     if (prices.length < 15) {
-        return { value: null, bool: false }; // Need at least 15 days of data
+        return { value: null }; // Need at least 15 days of data
     }
 
     // Calculate daily gains and losses
@@ -261,7 +261,7 @@ export function calculateRelativeStrengthRating(stockData) {
 
 export function calculateAcceleratingEarningsGrowthFromEarningsData(earningsData) {
     if (earningsData.length < 2) {
-        return { value: null, message: "Not enough data for calculation." };
+        return { value: null };
     }
 
     let isAccelerating = true;
@@ -298,7 +298,7 @@ export function calculateSMRRating(stockData) {
     // Check if necessary data is present
     const financialData = stockData.financialData;
     if (!financialData) {
-        return { value: null, bool: false }; // Bad data
+        return { value: null }; // Bad data
     }
 
     // Retrieve necessary data
@@ -436,7 +436,7 @@ export function calculateVolumeAboveAverage(summaryDetail) {
 
 export function calculateWithinBuyPoint(currentPrice, historicalPrices) {
     if (!currentPrice || !historicalPrices || historicalPrices.length < 10) {
-        return { value: null, bool: false }; // Bad data or insufficient data
+        return { value: null }; // Bad data or insufficient data
     }
 
     const idealBuyPoint = calculateIdealBuyPoint(historicalPrices);
@@ -496,7 +496,7 @@ export function extractFundOwnershipData(stockData) {
 
 export function calculateBreakout(stockData) { // QUALITATIVE
     if (!stockData.historicalPrices || stockData.historicalPrices.length < 2) {
-        return { value: null, bool: false };
+        return { value: null };
     }
 
     const historicalPrices = stockData.historicalPrices;
@@ -519,14 +519,14 @@ export function calculateBreakout(stockData) { // QUALITATIVE
 
 export function calculateRelativeStrengthLineInNewHigh(stockData) {
     if (!stockData.historicalPrices || !stockData.sp500HistoricalPrices) {
-        return { value: null, bool: false };
+        return { value: null };
     }
 
     const stockPrices = stockData.historicalPrices;
     const sp500Prices = stockData.sp500HistoricalPrices;
 
     if (stockPrices.length < 2 || sp500Prices.length < 2) {
-        return { value: null, bool: false };
+        return { value: null };
     }
 
     // Create a mapping of dates for the reference index prices
@@ -540,7 +540,7 @@ export function calculateRelativeStrengthLineInNewHigh(stockData) {
 
     // If not enough common data, return null
     if (commonPrices.length < 2) {
-        return { value: null, bool: false };
+        return { value: null };
     }
 
     // Calculate relative strength for each common day
@@ -553,7 +553,7 @@ export function calculateRelativeStrengthLineInNewHigh(stockData) {
     }).filter(rs => rs !== null);
 
     if (relativeStrength.length < 2) {
-        return { value: null, bool: false };
+        return { value: null };
     }
 
     // Check if current relative strength is the highest

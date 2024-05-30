@@ -82,8 +82,8 @@ function calculateChecklist(stockData) {
     // Necessary data
     const summaryDetail = stockData.summaryDetail || {};
     const price = stockData.price || {};
-    const returnOnEquity = stockData.financialData.returnOnEquity ? `${(stockData.financialData.returnOnEquity * 100).toFixed(2)} %` : 'N/A';
-    const returnOnEquityBool = stockData.financialData.returnOnEquity ? stockData.financialData.returnOnEquity * 100 >= 17 : false;
+    const returnOnEquity = stockData.financialData.returnOnEquity ? `${(stockData.financialData.returnOnEquity * 100).toFixed(2)} %` : null;
+    const returnOnEquityBool = stockData.financialData.returnOnEquity ? stockData.financialData.returnOnEquity * 100 >= 17 : '';
     const quarterlyData = stockData.earnings.financialsChart.quarterly;
     const ownershipList = stockData.fundOwnership.ownershipList;
     const currentPrice = price.regularMarketPrice;
