@@ -72,7 +72,6 @@ export function calculateEpsGrowth(stockData) {
     }
 
     const quarterlyEarnings = stockData.earnings.earningsChart.quarterly;
-    console.log(quarterlyEarnings);
 
     if (quarterlyEarnings.length < 2) {
         return { value: null, bool: false }; // Not enough data
@@ -142,6 +141,7 @@ export function calculateThreeQuarterEpsGrowth(stockData) {
 
 export function calculateAverageAnnualEpsGrowth(stockData) {
     if (!stockData.earnings || !stockData.earnings.financialsChart || !stockData.earnings.financialsChart.yearly) {
+        console.log('BAD DATA')
         return { value: null, bool: false }; // Bad data
     }
 
@@ -149,14 +149,17 @@ export function calculateAverageAnnualEpsGrowth(stockData) {
 
     // We need at least 4 years of data to calculate growth over the last 3 years
     if (yearlyEarnings.length < 4) {
+        console.log('NOT ENOUGH DATA')
         return { value: null, bool: false }; // Not enough data
     }
 
     // Extract EPS values for the last 4 years
     const recentEpsValues = yearlyEarnings.slice(-4).map(entry => entry.earnings);
+    console.log(recentEpsValues)
 
     // Validate EPS values
     if (recentEpsValues.some(eps => eps == null || eps === 0)) {
+        console.log('INVALID DATA')
         return { value: null, bool: false }; // Invalid data
     }
 
