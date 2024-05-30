@@ -140,9 +140,6 @@ export function calculateThreeQuarterEpsGrowth(stockData) {
 
 
 
-
-
-
 export function calculateAverageAnnualEpsGrowth(stockData) {
     if (!stockData.earnings || !stockData.earnings.financialsChart || !stockData.earnings.financialsChart.yearly) {
         return { value: null, bool: false }; // Bad data
