@@ -32,7 +32,7 @@ async function getStockData(ticker) {
 
         // Historical prices and other historical data can remain the same
         const historicalPrices = await yahooFinance.historical(ticker, {
-            period1: '2015-01-01', // Can be modified
+            period1: '2010-01-01', // Can be modified
             period2: new Date().toISOString().split('T')[0],
             interval: '1mo',
         });
@@ -87,10 +87,9 @@ function calculateChecklist(stockData) {
     const quarterlyData = stockData.earnings.financialsChart.quarterly;
     const ownershipList = stockData.fundOwnership.ownershipList;
     const currentPrice = price.regularMarketPrice;
-    console.log(currentPrice)
 
     const salesGrowth = calculations.calculateSalesGrowth(quarterlyData);
-    const epsGrowth = calculations.calculateQuarterlyEpsGrowth(stockData);
+    const epsGrowth = calculations.calculateEpsGrowth(stockData);
     const relativeStrengthRating = calculations.calculateRelativeStrengthRating(stockData);
     const acceleratingEarningsGrowth = calculations.calculateAcceleratingEarningsGrowthFromEarningsData(quarterlyData);
 
@@ -135,30 +134,31 @@ function calculateChecklist(stockData) {
         stockInfo: stockData.stockInfo,
 
                 // Big Rock 1 // manque 3 attributs //
-        //compositeRatingResult: calculations.calculateCompositeRating(data),                               // Composite Rating of 95 or higher
-        // epsRatingResult: calculations.calculateEpsRating(stockData, ratingThresholds),
-        // epsGrowth: epsGrowth,
-        acceleratingEarningsGrowth: acceleratingEarningsGrowth,                                             // Accelerating earnings growth
-        // annualEpsGrowth: calculations.calculateAnnualEpsGrowth(stockData),
-        salesGrowth: salesGrowth,
-        roe: roe,                                                                                           // Return on equity (ROE) of 17% or higher
-        // smrRating: calculations.calculateSMRRating(salesGrowth.value, margin, roe.value),
+        //compositeRatingResult: calculations.calculateCompositeRating(data),                           // Composite Rating of 95 or higher
+        // epsRatingResult: calculations.calculateEpsRating(stockData, ratingThresholds),               // EPS Rating of 80 or higher
+        epsGrowth: epsGrowth,                                                                           // EPS growth 25% or higher in recent quarters
+        acceleratingEarningsGrowth: acceleratingEarningsGrowth,                                         // Accelerating earnings growth
+        annualEpsGrowth: calculations.calculateAverageAnnualEpsGrowth(stockData),                       // Average Annual EPS growth 25% or more over last 3 years
+        salesGrowth: salesGrowth,                                                                       // Sales growth 20%-25% or higher in most recent quarter
+        roe: roe,                                                                                       // Return on equity (ROE) of 17% or higher
+        smrRating: calculations.calculateSMRRating(stockData),                                          // SMR Rating (Sales + Margins + Return on Equity) of A or B
+
+        // 3 more //
 
 
                 // Big Rock 2 //
         increaseInFundsOwnership: calculations.calculateIncreaseInFundsOwnership(ownershipList),
-        accumulationDistributionRating: calculations.calculateADRating(stockData.historicalPrices),         // Accumulation/Distribution Rating of A, B or C
+        accumulationDistributionRating: calculations.calculateADRating(stockData.historicalPrices),     // Accumulation/Distribution Rating of A, B or C
         relativeStrengthRating: relativeStrengthRating,
-        currentSharePrice: currentSharePrice,                                                               // Share price above $15
-        averageDailyVolume: averageDailyVolume,                                                             // Average daily volume of 400,000 shares or more               // Big Rock 3 // manque 2 attributs //
+        currentSharePrice: currentSharePrice,                                                           // Share price above $15
+        averageDailyVolume: averageDailyVolume,                                                         // Average daily volume of 400,000 shares or more 
 
 
                 // Big Rock 3 //
-
-        breakingOutOfSoundBase: calculations.calculateBreakout(stockData),
-        volumeAboveAverage: calculations.calculateVolumeAboveAverage(summaryDetail),
-
-        withinBuyPoint: calculations.calculateWithinBuyPoint(currentPrice, stockData.historicalPrices),
+        breakingOutOfSoundBase: calculations.calculateBreakout(stockData),                              // Breaking out of sound base or alternative buy point
+        volumeAboveAverage: calculations.calculateVolumeAboveAverage(summaryDetail),                    // Volume at least 40% to 50% above average on breakout
+        rsLine: calculations.calculateRelativeStrengthLineInNewHigh(stockData),                         // Relative strength line in new high ground
+        withinBuyPoint: calculations.calculateWithinBuyPoint(currentPrice, stockData.historicalPrices), // Within 5% of ideal buy point
 
 
         // threeQuarterEpsGrowth: calculations.calculateThreeQuarterEpsGrowth(stockData),

@@ -36,21 +36,21 @@ export function calculateAverageDailyVolume(averageVolume, benchmarkVolume) {
 
 export function calculateEpsRating(stockData, ratingThresholds) {
     if (!stockData.earnings?.financialsChart?.quarterly || !stockData.defaultKeyStatistics?.sharesOutstanding) {
-        return { value: null };
+        return { value: null, bool: false }; // Bad data
     }
 
     const quarterlyEarnings = stockData.earnings.financialsChart.quarterly;
     const sharesOutstanding = stockData.defaultKeyStatistics.sharesOutstanding;
 
     if (quarterlyEarnings.length < 4) { // Not enough data
-        return { value: null };
+        return { value: null, bool: false };
     }
 
     const quarterlyEps = quarterlyEarnings.map(e => e.earnings / sharesOutstanding);
     const validEps = quarterlyEps.filter(eps => eps !== null && !isNaN(eps) && eps > 0);
 
     if (validEps.length < 4) {
-        return { value: null };
+        return { value: null, bool: false }; // Not enough data
     }
 
     const growthRates = validEps.slice(1).map((eps, i) => {
@@ -66,35 +66,35 @@ export function calculateEpsRating(stockData, ratingThresholds) {
 }
 
 
-
-export function calculateQuarterlyEpsGrowth(stockData) {
-    const earningsData = stockData.earnings.financialsChart.quarterly;
-    if (earningsData.length >= 4) {
-        let growths = [];
-        let allAbove25 = true;
-
-        for (let i = 1; i < 4; i++) {
-            if (earningsData[i].earnings && earningsData[i - 1].earnings && earningsData[i - 1].earnings !== 0) {
-                const currentGrowth = ((earningsData[i].earnings - earningsData[i - 1].earnings) / earningsData[i - 1].earnings) * 100;
-                growths.push(currentGrowth);
-                if (currentGrowth < 25) {
-                    allAbove25 = false;
-                }
-            } else {
-                return { value: null, bool: false };
-            }
-        }
-
-        return {
-            value: `${growths[growths.length - 1].toFixed(2)}%`,
-            bool: allAbove25
-        };
+export function calculateEpsGrowth(stockData) {
+    if (!stockData.earnings || !stockData.earnings.earningsChart || !stockData.earnings.earningsChart.quarterly) {
+        return { value: null, bool: false }; // Bad data
     }
-    return { value: null }; // Not enough data
+
+    const quarterlyEarnings = stockData.earnings.earningsChart.quarterly;
+    console.log(quarterlyEarnings);
+
+    if (quarterlyEarnings.length < 2) {
+        return { value: null, bool: false }; // Not enough data
+    }
+
+    // Retrieve current EPS and EPS from a year ago
+    const currentEps = quarterlyEarnings[quarterlyEarnings.length - 1].actual;
+    const yearAgoEps = quarterlyEarnings[quarterlyEarnings.length - 2].actual;
+
+    // Check if data is valid
+    if (currentEps == null || yearAgoEps == null) {
+        return { value: null, bool: false }; // Invalid data
+    }
+
+    // Calculate EPS growth
+    const epsGrowth = ((currentEps - yearAgoEps) / yearAgoEps) * 100;
+
+    const value = `${epsGrowth.toFixed(2)}%`;
+    const bool = epsGrowth >= 25;
+
+    return { value: value, bool: bool };
 }
-
-
-
 
 
 
@@ -143,34 +143,39 @@ export function calculateThreeQuarterEpsGrowth(stockData) {
 
 
 
-export function calculateAnnualEpsGrowth(stockData) {
+export function calculateAverageAnnualEpsGrowth(stockData) {
     if (!stockData.earnings || !stockData.earnings.financialsChart || !stockData.earnings.financialsChart.yearly) {
-        return { value: null };
+        return { value: null, bool: false }; // Bad data
     }
 
     const yearlyEarnings = stockData.earnings.financialsChart.yearly;
-    const sharesOutstanding = stockData.defaultKeyStatistics.sharesOutstanding;
 
-    if (yearlyEarnings.length < 4 || !sharesOutstanding) {
-        return { value: null }; // Not enough data
+    // We need at least 4 years of data to calculate growth over the last 3 years
+    if (yearlyEarnings.length < 4) {
+        return { value: null, bool: false }; // Not enough data
     }
 
-    const yearlyEps = yearlyEarnings.map(e => ({
-        year: e.date,
-        eps: e.earnings / sharesOutstanding
-    }));
+    // Extract EPS values for the last 4 years
+    const recentEpsValues = yearlyEarnings.slice(-4).map(entry => entry.earnings);
 
-    const growthRates = [];
-    for (let i = 1; i < yearlyEps.length; i++) {
-        const growth = ((yearlyEps[i].eps - yearlyEps[i - 1].eps) / yearlyEps[i - 1].eps) * 100;
-        growthRates.push(growth);
+    // Validate EPS values
+    if (recentEpsValues.some(eps => eps == null || eps === 0)) {
+        return { value: null, bool: false }; // Invalid data
     }
 
-    const averageGrowth = growthRates.reduce((sum, rate) => sum + rate, 0) / growthRates.length;
-    const value = `${averageGrowth.toFixed(2)} %`;
+    // Calculate average annual growth
+    const initialEps = recentEpsValues[0];
+    const finalEps = recentEpsValues[recentEpsValues.length - 1];
+    const years = recentEpsValues.length - 1;
 
-    return { value: value, bool: averageGrowth >= 25 };
+    const averageAnnualGrowth = ((Math.pow(finalEps / initialEps, 1 / years) - 1) * 100);
+
+    const value = `${averageAnnualGrowth.toFixed(2)}%`;
+    const bool = averageAnnualGrowth >= 25;
+
+    return { value: value, bool: bool };
 }
+
 
 
 export function calculateSalesGrowth(earningsData) {
@@ -284,23 +289,43 @@ export function calculateAcceleratingEarningsGrowthFromEarningsData(earningsData
 
 
 
-export function calculateSMRRating(salesGrowth, margin, roe) {
-    const salesScore = salesGrowth >= 20 ? 'A' : (salesGrowth >= 15 ? 'B' : 'C');
-    const marginScore = margin >= 15 ? 'A' : (margin >= 10 ? 'B' : 'C');
-    const roeScore = roe >= 17 ? 'A' : (roe >= 12 ? 'B' : 'C');
-
-    const scores = [salesScore, marginScore, roeScore];
-    const aCount = scores.filter(score => score === 'A').length;
-    const bCount = scores.filter(score => score === 'B').length;
-
-    if (aCount >= 2) {
-        return { value: 'A', bool: true}
-    } else if (bCount >= 2 || aCount >= 1) {
-        return { value: 'B', bool: true}
-    } else {
-        return { value: 'C', bool: false}
+export function calculateSMRRating(stockData) {
+    // Check if necessary data is present
+    const financialData = stockData.financialData;
+    if (!financialData) {
+        return { value: null, bool: false }; // Bad data
     }
+
+    // Retrieve necessary data
+    const salesGrowth = financialData.revenueGrowth;
+    const grossMargin = financialData.grossMargins;
+    const roe = financialData.returnOnEquity;
+
+    // Evaluate sales growth (S)
+    const salesGrowthRating = salesGrowth > 0.25 ? 'A' :
+                              salesGrowth > 0.15 ? 'B' :
+                              salesGrowth > 0.05 ? 'C' :
+                              salesGrowth > 0 ? 'D' : 'E';
+
+    // Evaluate gross margins (M)
+    const marginRating = grossMargin > 0.20 ? 'A' :
+                         grossMargin > 0.15 ? 'B' :
+                         grossMargin > 0.10 ? 'C' :
+                         grossMargin > 0.05 ? 'D' : 'E';
+
+    // Evaluate ROE (R)
+    const roeRating = roe > 0.20 ? 'A' :
+                      roe > 0.15 ? 'B' :
+                      roe > 0.10 ? 'C' :
+                      roe > 0.05 ? 'D' : 'E';
+
+    // Calculate the overall SMR Rating (the worst rating among S, M, and R)
+    const smrRating = [salesGrowthRating, marginRating, roeRating].sort()[0];
+
+    return { value: smrRating, bool: ['A', 'B'].includes(smrRating) };
 }
+
+
 
 
 export function calculateIncreaseInFundsOwnership(ownershipList) {
@@ -413,18 +438,13 @@ export function calculateWithinBuyPoint(currentPrice, historicalPrices) {
 
     const tolerance = 0.05; // 5% tolerance
     const lowerBound = idealBuyPoint * (1 - tolerance);
-    console.log(`LOWER : ${lowerBound}`)
     const upperBound = idealBuyPoint * (1 + tolerance);
-    console.log(`UPPER : ${upperBound}`)
 
 
     const isWithinBuyPoint = currentPrice >= lowerBound && currentPrice <= upperBound;
-    console.log(currentPrice)
 
-    const percentageFromIdeal = ((currentPrice - idealBuyPoint) / idealBuyPoint);
-    console.log(percentageFromIdeal)
-    const value = isWithinBuyPoint ? `Yes (${percentageFromIdeal.toFixed(2)}%)` : `No (${percentageFromIdeal.toFixed(2)}%)`;
-
+    // const percentageFromIdeal = ((currentPrice - idealBuyPoint) / idealBuyPoint);
+    const value = isWithinBuyPoint ? 'Yes' : 'No';
     return {
         value: value,
         bool: isWithinBuyPoint
@@ -442,7 +462,6 @@ function calculateIdealBuyPoint(historicalPrices) {
 
     // Margin of 0.10$ to determine the ideal buy point
     const idealBuyPoint = highestIntraday + 0.10;
-    console.log(idealBuyPoint)
     return idealBuyPoint;
 }
 
@@ -491,4 +510,55 @@ export function calculateBreakout(stockData) { // QUALITATIVE
     const value = isBreakout ? 'Breakout detected' : 'No breakout';
 
     return { value: value, bool: isBreakout };
+}
+
+export function calculateRelativeStrengthLineInNewHigh(stockData) {
+    if (!stockData.historicalPrices || !stockData.sp500HistoricalPrices) {
+        return { value: null, bool: false };
+    }
+
+    const stockPrices = stockData.historicalPrices;
+    const sp500Prices = stockData.sp500HistoricalPrices;
+
+    if (stockPrices.length < 2 || sp500Prices.length < 2) {
+        return { value: null, bool: false };
+    }
+
+    // Create a mapping of dates for the reference index prices
+    const sp500PricesMap = new Map();
+    sp500Prices.forEach(price => {
+        sp500PricesMap.set(new Date(price.date).toISOString().split('T')[0], price.close);
+    });
+
+    // Filter stock prices to only use dates common with the reference index
+    const commonPrices = stockPrices.filter(price => sp500PricesMap.has(new Date(price.date).toISOString().split('T')[0]));
+
+    // If not enough common data, return null
+    if (commonPrices.length < 2) {
+        return { value: null, bool: false };
+    }
+
+    // Calculate relative strength for each common day
+    const relativeStrength = commonPrices.map(price => {
+        const date = new Date(price.date).toISOString().split('T')[0];
+        const stockClose = price.close;
+        const sp500Close = sp500PricesMap.get(date);
+        if (sp500Close == 0) return null;
+        return (stockClose / sp500Close) * 100;
+    }).filter(rs => rs !== null);
+
+    if (relativeStrength.length < 2) {
+        return { value: null, bool: false };
+    }
+
+    // Check if current relative strength is the highest
+    const currentRelativeStrength = relativeStrength[relativeStrength.length - 1];
+    const isNewHigh = currentRelativeStrength >= Math.max(...relativeStrength);
+
+    // const value = `${currentRelativeStrength.toFixed(2)}`;
+
+    return {
+        value: isNewHigh ? "Yes" : "No",
+        bool: isNewHigh
+    };
 }
