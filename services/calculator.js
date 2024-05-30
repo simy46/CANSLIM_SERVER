@@ -168,6 +168,10 @@ export function calculateAverageAnnualEpsGrowth(stockData) {
     const finalEps = recentEpsValues[recentEpsValues.length - 1];
     const years = recentEpsValues.length - 1;
 
+    console.log(initialEps)
+    console.log(finalEps)
+    console.log(years)
+
     const averageAnnualGrowth = ((Math.pow(finalEps / initialEps, 1 / years) - 1) * 100);
     console.log(averageAnnualGrowth)
 
