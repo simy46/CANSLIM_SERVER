@@ -197,41 +197,56 @@ export function calculateSalesGrowth(earningsData) {
 
 
 export function calculateRelativeStrengthRating(stockData) {
-    if (!stockData.historicalPrices || !stockData.sp500HistoricalPrices) {
-        return { value: null };
+    if (!stockData.historicalPrices) {
+        return { value: null, bool: false };
     }
 
-    const stockPrices = stockData.historicalPrices;
-    const sp500Prices = stockData.sp500HistoricalPrices;
+    const prices = stockData.historicalPrices.map(price => price.close);
 
-    if (stockPrices.length < 2 || sp500Prices.length < 2) {
-        return { value: null };
+    if (prices.length < 15) {
+        return { value: null, bool: false }; // Need at least 15 days of data
     }
 
-    const startStockPrice = stockPrices[0].close;
-    const endStockPrice = stockPrices[stockPrices.length - 1].close;
+    // Calculate daily gains and losses
+    const gains = [];
+    const losses = [];
 
-    const startSp500Price = sp500Prices[0].close;
-    const endSp500Price = sp500Prices[sp500Prices.length - 1].close;
-
-    if (startStockPrice == null || endStockPrice == null || startSp500Price == null || endSp500Price == null) {
-        return { value: null };
+    for (let i = 1; i < prices.length; i++) {
+        const difference = prices[i] - prices[i - 1];
+        if (difference > 0) {
+            gains.push(difference);
+            losses.push(0);
+        } else {
+            gains.push(0);
+            losses.push(Math.abs(difference));
+        }
     }
 
-    // Calculate performance of stock and S&P 500
-    const stockPerformance = ((endStockPrice - startStockPrice) / startStockPrice) * 100;
-    const sp500Performance = ((endSp500Price - startSp500Price) / startSp500Price) * 100;
+    // Calculate the average gain and loss
+    let averageGain = gains.slice(0, 14).reduce((a, b) => a + b, 0) / 14;
+    let averageLoss = losses.slice(0, 14).reduce((a, b) => a + b, 0) / 14;
 
-    // Calculate relative strength
-    const relativeStrength = stockPerformance - sp500Performance;
 
-    // Convert relative strength to a rating between 0 and 100
-    const relativeStrengthRating = Math.min(Math.max(relativeStrength, 0), 100);
+    let rs = averageGain / averageLoss;
+    let rsi = 100 - (100 / (1 + rs));
 
-    const value = `${relativeStrength.toFixed(2)} %`;
+    for (let i = 14; i < (prices.length - 1); i++) {
+        const gain = gains[i];
+        const loss = losses[i];
 
-    return { value: value, bool: relativeStrengthRating >= 80 };
+        averageGain = ((averageGain * 13) + gain) / 14;
+        averageLoss = ((averageLoss * 13) + loss) / 14;
+
+        rs = averageGain / averageLoss;
+        rsi = 100 - (100 / (1 + rs));
+    }
+
+    const value = `${rsi.toFixed(2)} %`;
+
+    return { value: value, bool: rsi >= 80 };
 }
+
+
 
 
 export function calculateAcceleratingEarningsGrowthFromEarningsData(earningsData) {
@@ -373,40 +388,64 @@ function averageADLChange(adlValues) {
 }
 
 
-export function calculateVolumeAboveAverage(currentVolume, averageVolume) {
-    if (currentVolume == null || averageVolume == null) {
-        return { value: null };
+export function calculateVolumeAboveAverage(summaryDetail) {
+    if (!summaryDetail || summaryDetail.regularMarketVolume == null || summaryDetail.averageVolume == null) {
+        return { value: null }; // Bad data
     }
+
+    const currentVolume = summaryDetail.regularMarketVolume;
+    const averageVolume = summaryDetail.averageVolume;
 
     const percentageAboveAverage = ((currentVolume - averageVolume) / averageVolume) * 100;
-    const isAboveThreshold = percentageAboveAverage >= 40 && percentageAboveAverage <= 50;
-    const value = `${percentageAboveAverage.toFixed(2)} %`
 
-    return {
-        value: value,
-        bool: isAboveThreshold
-    };
+    const value = `${percentageAboveAverage.toFixed(2)} %`;
+    const bool = percentageAboveAverage >= 40; // Checking if it is at least 40% above average
+
+    return { value: value, bool: bool };
 }
 
-
-
-export function calculateWithinBuyPoint(currentPrice, idealBuyPoint) {
-    if (currentPrice == null || idealBuyPoint == null) {
-        return { value: null };
+export function calculateWithinBuyPoint(currentPrice, historicalPrices) {
+    if (!currentPrice || !historicalPrices || historicalPrices.length < 10) {
+        return { value: null, bool: false }; // Bad data or insufficient data
     }
 
-    const tolerance = 0.05; // p-value
+    const idealBuyPoint = calculateIdealBuyPoint(historicalPrices);
+
+    const tolerance = 0.05; // 5% tolerance
     const lowerBound = idealBuyPoint * (1 - tolerance);
+    console.log(`LOWER : ${lowerBound}`)
     const upperBound = idealBuyPoint * (1 + tolerance);
+    console.log(`UPPER : ${upperBound}`)
+
 
     const isWithinBuyPoint = currentPrice >= lowerBound && currentPrice <= upperBound;
-    const value = `${currentPrice.toFixed(2)} %`
+    console.log(currentPrice)
+
+    const percentageFromIdeal = ((currentPrice - idealBuyPoint) / idealBuyPoint);
+    console.log(percentageFromIdeal)
+    const value = isWithinBuyPoint ? `Yes (${percentageFromIdeal.toFixed(2)}%)` : `No (${percentageFromIdeal.toFixed(2)}%)`;
 
     return {
         value: value,
         bool: isWithinBuyPoint
     };
 }
+
+function calculateIdealBuyPoint(historicalPrices) {
+    // Filter out unrealistic high prices (outliers)
+    const filteredPrices = historicalPrices
+        .filter(price => price.high > 0 && price.high < 2 * historicalPrices[0].high);
+    
+    // Highest intraday in form of "W"
+    const highPrices = filteredPrices.map(price => price.high);
+    const highestIntraday = Math.max(...highPrices);
+
+    // Margin of 0.10$ to determine the ideal buy point
+    const idealBuyPoint = highestIntraday + 0.10;
+    console.log(idealBuyPoint)
+    return idealBuyPoint;
+}
+
 
 
 export function calculateMarginFromIncomeStatement(incomeStatementHistory) {
@@ -429,4 +468,27 @@ export function calculateMarginFromIncomeStatement(incomeStatementHistory) {
 export function extractFundOwnershipData(stockData) {
     const fundOwnershipList = stockData.fundOwnership.ownershipList || [];
     return fundOwnershipList.map(entry => entry.position);
+}
+
+export function calculateBreakout(stockData) { // QUALITATIVE
+    if (!stockData.historicalPrices || stockData.historicalPrices.length < 2) {
+        return { value: null, bool: false };
+    }
+
+    const historicalPrices = stockData.historicalPrices;
+    const recentPrice = historicalPrices[historicalPrices.length - 1].close;
+    const previousPrice = historicalPrices[historicalPrices.length - 2].close;
+    const recentVolume = historicalPrices[historicalPrices.length - 1].volume;
+    const averageVolume = stockData.summaryDetail.averageVolume;
+
+    // Simple check for price breakout
+    const priceBreakout = recentPrice > previousPrice;
+
+    // Check if volume is significantly higher than average
+    const volumeBreakout = recentVolume > averageVolume * 1.4;
+
+    const isBreakout = priceBreakout && volumeBreakout;
+    const value = isBreakout ? 'Breakout detected' : 'No breakout';
+
+    return { value: value, bool: isBreakout };
 }

@@ -26,8 +26,9 @@ async function getStockData(ticker) {
     try {
         const stockData = await yahooFinance.quoteSummary(ticker, queryOptions, { validateResult: false });
 
-        const nameAndTicker = await yahooFinance.quote(ticker);
-        stockData.nameAndTicker = nameAndTicker;
+        const stockInfo = await yahooFinance.quote(ticker, { fields: [ "symbol", "displayName" ] });
+
+        stockData.stockInfo = stockInfo;
 
         // Historical prices and other historical data can remain the same
         const historicalPrices = await yahooFinance.historical(ticker, {
@@ -81,28 +82,30 @@ function calculateChecklist(stockData) {
     // Necessary data
     const summaryDetail = stockData.summaryDetail || {};
     const price = stockData.price || {};
-    const returnOnEquity = stockData.financialData.returnOnEquity;
+    const returnOnEquity = stockData.financialData.returnOnEquity ? `${(stockData.financialData.returnOnEquity * 100).toFixed(2)} %` : 'N/A';
+    const returnOnEquityBool = stockData.financialData.returnOnEquity ? stockData.financialData.returnOnEquity * 100 >= 17 : false;
     const quarterlyData = stockData.earnings.financialsChart.quarterly;
     const ownershipList = stockData.fundOwnership.ownershipList;
-    console.log(ownershipList)
+    const currentPrice = price.regularMarketPrice;
+    console.log(currentPrice)
+
+    const salesGrowth = calculations.calculateSalesGrowth(quarterlyData);
+    const epsGrowth = calculations.calculateQuarterlyEpsGrowth(stockData);
+    const relativeStrengthRating = calculations.calculateRelativeStrengthRating(stockData);
+    const acceleratingEarningsGrowth = calculations.calculateAcceleratingEarningsGrowthFromEarningsData(quarterlyData);
 
 
     const historicalEPS = stockData.historicalEarnings.map(entry => entry.epsActual);
     const currentVolume = summaryDetail.volume;
-    const currentPrice = price.regularMarketPrice;
     const averageVolume = summaryDetail.averageVolume;
     const idealBuyPoint = Math.max(...stockData.historicalPrices.slice(-3).map(price => price.high));
 
-    const salesGrowth = calculations.calculateSalesGrowth(quarterlyData);
     const margin = calculations.calculateMarginFromIncomeStatement(stockData.incomeStatementHistory);
-    const epsGrowth = calculations.calculateQuarterlyEpsGrowth(stockData);
-    const relativeStrengthRating = calculations.calculateRelativeStrengthRating(stockData);
-    const acceleratingEarningsGrowth = calculations.calculateAcceleratingEarningsGrowthFromEarningsData(quarterlyData);
     const fundOwnershipData = calculations.extractFundOwnershipData(stockData);
     
     const roe = { // Check //
-        value: `${returnOnEquity.toFixed(2)} %`,
-        bool: returnOnEquity >= 17
+        value: returnOnEquity,
+        bool: returnOnEquityBool
     };
     const currentSharePrice = {    // Check //
         value: `$${currentPrice.toFixed(2)}`,
@@ -129,7 +132,7 @@ function calculateChecklist(stockData) {
     }
     
     const results = {
-        nameAndTicker: stockData.nameAndTicker,
+        stockInfo: stockData.stockInfo,
 
                 // Big Rock 1 // manque 3 attributs //
         //compositeRatingResult: calculations.calculateCompositeRating(data),                               // Composite Rating of 95 or higher
@@ -152,9 +155,10 @@ function calculateChecklist(stockData) {
 
                 // Big Rock 3 //
 
-        // volumeAboveAverage: calculations.calculateVolumeAboveAverage(currentVolume, averageVolume),
+        breakingOutOfSoundBase: calculations.calculateBreakout(stockData),
+        volumeAboveAverage: calculations.calculateVolumeAboveAverage(summaryDetail),
 
-        // withinBuyPoint: calculations.calculateWithinBuyPoint(currentPrice, idealBuyPoint),
+        withinBuyPoint: calculations.calculateWithinBuyPoint(currentPrice, stockData.historicalPrices),
 
 
         // threeQuarterEpsGrowth: calculations.calculateThreeQuarterEpsGrowth(stockData),
