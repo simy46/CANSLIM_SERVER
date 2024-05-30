@@ -169,6 +169,7 @@ export function calculateAverageAnnualEpsGrowth(stockData) {
     const years = recentEpsValues.length - 1;
 
     const averageAnnualGrowth = ((Math.pow(finalEps / initialEps, 1 / years) - 1) * 100);
+    console.log(averageAnnualGrowth)
 
     const value = `${averageAnnualGrowth.toFixed(2)}%`;
     const bool = averageAnnualGrowth >= 25;
