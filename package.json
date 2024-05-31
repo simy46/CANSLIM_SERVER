@@ -5,8 +5,8 @@
     "main": "server.js",
     "type": "module",
     "scripts": {
-        "start": "nodemon ./server.js",
-        "lint": "eslint ./"
+        "start": "node ./server.js",
+        "dev": "node ./server.js"
     },
     "author": "SamyFruit",
     "license": "ISC",
@@ -14,10 +14,5 @@
         "cors": "^2.8.5",
         "express": "^4.19.2",
         "yahoo-finance2": "^2.11.2"
-    },
-    "devDependencies": {
-        "eslint": "8.56.0",
-        "eslint-plugin-import": "2.29.1",
-        "nodemon": "3.0.3"
     }
 }
