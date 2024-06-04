@@ -43,10 +43,10 @@ This server is intended for personal and educational use only. Commercial use of
 To install and run the server locally, follow these steps:
 
 1. Clone the repository:
-   \`\`\`sh
+```bash
    git clone https://github.com/simy46/CANSLIM_SERVER.git
    cd CANSLIM_SERVER
-   \`\`\`
+```
 
 2. Install the dependencies:
 ```bash
