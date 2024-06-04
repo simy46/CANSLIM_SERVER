@@ -29,10 +29,11 @@ export function calculateCurrentSharePrice(currentPrice, benchmarkPrice) {
 }
 
 export function calculateAverageDailyVolume(averageVolume, benchmarkVolume) {
-    const value = `${averageVolume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} units`;
+    const value = `${averageVolume.toLocaleString(undefined)} units`;
     const bool = averageVolume >= benchmarkVolume;
-    return { value: value, bool: bool  };
+    return { value: value, bool: bool };
 }
+
 
 export function calculateEpsRating(stockData, ratingThresholds) {
     if (!stockData.earnings?.financialsChart?.quarterly || !stockData.defaultKeyStatistics?.sharesOutstanding) {
