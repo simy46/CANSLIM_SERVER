@@ -89,7 +89,7 @@ function calculateChecklist(stockData) {
     const currentPrice = price.regularMarketPrice;
 
     const salesGrowth = calculations.calculateSalesGrowth(quarterlyData);
-    const epsGrowth = calculations.calculateEpsGrowth(stockData);
+    const epsGrowth = calculations.calculateRecentEpsGrowth(stockData);
     const relativeStrengthRating = calculations.calculateRelativeStrengthRating(stockData);
     const acceleratingEarningsGrowth = calculations.calculateAcceleratingEarningsGrowthFromEarningsData(quarterlyData);
 
