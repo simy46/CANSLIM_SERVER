@@ -111,7 +111,7 @@ function calculateChecklist(stockData) {
         bool: currentPrice >= benchmarks.currentSharePrice
     };
     const averageDailyVolume = { // Check //
-        value: `${summaryDetail.averageVolume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 0 })} shares`,
+        value: `${summaryDetail.averageVolume.toLocaleString(undefined)} shares`,
         bool: summaryDetail.averageVolume >= benchmarks.averageDailyVolume
     };
     
