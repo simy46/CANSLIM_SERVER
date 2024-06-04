@@ -68,7 +68,7 @@ For development purposes, you can use the following command to start the server 
 The server provides several endpoints to interact with the front-end application. These include fetching stock data, processing CANSLIM criteria, and more. Detailed documentation of the endpoints will be provided in future updates.
 
 ### Contributions
-Feedback and suggestions are highly encouraged! However, any significant changes or uses of the project's code require my approval. Please feel free to open issues or pull requests on the project's GitHub repository.
+Feedback and suggestions are highly encouraged! Please feel free to open issues or pull requests on the project's GitHub repository.
 
 ### Disclaimer
 This project is a personal academic exercise and is not affiliated with any company or professional entity, including Yahoo Finance or Matthew Galgani. The results provided by the algorithm should be viewed as educational insights rather than professional investment advice. Always perform your own due diligence before making any investment decisions.
