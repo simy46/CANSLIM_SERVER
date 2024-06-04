@@ -66,34 +66,48 @@ export function calculateEpsRating(stockData, ratingThresholds) {
 }
 
 
-export function calculateEpsGrowth(stockData) {
+export function calculateRecentEpsGrowth(stockData) {
+    // Validate the presence of necessary data
     if (!stockData.earnings || !stockData.earnings.earningsChart || !stockData.earnings.earningsChart.quarterly) {
         return { value: null }; // Bad data
     }
 
     const quarterlyEarnings = stockData.earnings.earningsChart.quarterly;
 
-    if (quarterlyEarnings.length < 2) {
+    // Ensure there are enough data points (at least 3 quarters)
+    if (quarterlyEarnings.length < 4) {
         return { value: null }; // Not enough data
     }
 
-    // Retrieve current EPS and EPS from a year ago
+    // Retrieve EPS for the last three quarters
     const currentEps = quarterlyEarnings[quarterlyEarnings.length - 1].actual;
-    const yearAgoEps = quarterlyEarnings[quarterlyEarnings.length - 2].actual;
+    const oneQuarterAgoEps = quarterlyEarnings[quarterlyEarnings.length - 2].actual;
+    const twoQuartersAgoEps = quarterlyEarnings[quarterlyEarnings.length - 3].actual;
+    const threeQuartersAgoEps = quarterlyEarnings[quarterlyEarnings.length - 4].actual;
 
-    // Check if data is valid
-    if (currentEps == null || yearAgoEps == null) {
-        return { value: null }; // Invalid data
+    // Check if data is valid and ensure no negative values
+    if (currentEps == null || oneQuarterAgoEps == null || twoQuartersAgoEps == null || threeQuartersAgoEps == null ||
+        currentEps < 0 || oneQuarterAgoEps < 0 || twoQuartersAgoEps < 0 || threeQuartersAgoEps < 0) {
+        return { value: null }; // Invalid data or negative values
     }
 
-    // Calculate EPS growth
-    const epsGrowth = ((currentEps - yearAgoEps) / yearAgoEps) * 100;
+    // Calculate EPS growth for the last three quarters
+    const growthRates = [
+        ((currentEps - oneQuarterAgoEps) / oneQuarterAgoEps) * 100,
+        ((oneQuarterAgoEps - twoQuartersAgoEps) / twoQuartersAgoEps) * 100,
+        ((twoQuartersAgoEps - threeQuartersAgoEps) / threeQuartersAgoEps) * 100
+    ];
 
-    const value = `${epsGrowth.toFixed(2)}%`;
-    const bool = epsGrowth >= 25;
+    // Calculate the average growth
+    const averageGrowth = growthRates.reduce((sum, rate) => sum + rate, 0) / growthRates.length;
+
+    const value = `${averageGrowth.toFixed(2)}%`;
+    const bool = averageGrowth >= 25;
 
     return { value: value, bool: bool };
 }
+
+
 
 
 

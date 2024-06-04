@@ -111,7 +111,7 @@ function calculateChecklist(stockData) {
         bool: currentPrice >= benchmarks.currentSharePrice
     };
     const averageDailyVolume = { // Check //
-        value: `${summaryDetail.averageVolume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} shares`,
+        value: `${summaryDetail.averageVolume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 0 })} shares`,
         bool: summaryDetail.averageVolume >= benchmarks.averageDailyVolume
     };
     
@@ -159,9 +159,6 @@ function calculateChecklist(stockData) {
         volumeAboveAverage: calculations.calculateVolumeAboveAverage(summaryDetail),                    // Volume at least 40% to 50% above average on breakout
         rsLine: calculations.calculateRelativeStrengthLineInNewHigh(stockData),                         // Relative strength line in new high ground
         withinBuyPoint: calculations.calculateWithinBuyPoint(currentPrice, stockData.historicalPrices), // Within 5% of ideal buy point
-
-
-        // threeQuarterEpsGrowth: calculations.calculateThreeQuarterEpsGrowth(stockData),
 
     };
 
