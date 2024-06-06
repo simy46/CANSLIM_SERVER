@@ -40,7 +40,7 @@ app.use((request, _, next) => {
 
     // const deviceInfo = `${userAgent.platform} ${userAgent.os} ${userAgent.browser}`;
     
-    console.log(`New HTTP request: ${method} ${url} : ${formattedDate} from : ${ip} using ${deviceInfo}`);
+    console.log(`New HTTP request: ${method} ${url} : ${formattedDate} from : ${ip}`); //  using ${deviceInfo}
     next();
 });
 
