@@ -5,6 +5,9 @@ export async function writeOnFile(message) {
     const logFilePath = path.resolve('./logs/logs.txt');
     const dir = path.dirname(logFilePath);
 
+    console.log(logFilePath)
+    console.log(dir)
+
     return new Promise((resolve, reject) => {
         // Ensure the directory exists
         fs.mkdir(dir, { recursive: true }, (err) => {

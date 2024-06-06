@@ -48,7 +48,7 @@ app.use((request, _, next) => {
     const logMessage = `Request [${ip}] : ${method} - ${url} - ${deviceInfo} (${formattedDate})\n`;
 
     writeOnFile(logMessage)
-        .then(() => console.log('Log written successfully'))
+        .then(() => console.log(`Log written successfully : ${logMessage}`))
         .catch(err => console.error('Error writing to log file', err));
 
     next();
