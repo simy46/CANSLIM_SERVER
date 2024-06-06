@@ -4,6 +4,7 @@ import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
 import { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers } from './services/stockService.js';
 import { checkStock } from './services/checklistCalculator.js';
+import { writeOnFile } from './services/fileManager.js';
 import HTTP_STATUS from './services/http.js';
 
 const app = express();
@@ -45,7 +46,14 @@ app.use((request, _, next) => {
         deviceInfo = `${userAgent.platform} ${userAgent.os} ${userAgent.browser}`;
     }
 
-    console.log(`Request [${ip}] : ${method} - ${url} - ${deviceInfo} (${formattedDate})`);
+    const logMessage = `Request [${ip}] : ${method} - ${url} - ${deviceInfo} (${formattedDate})\n`;
+    const logFilePath = './logs/logs.txt';
+
+    writeOnFile(logFilePath, logMessage)
+        .then(() => console.log('Log written successfully'))
+        .catch(err => console.error('Error writing to log file', err));
+
+    
     next();
 });
 
