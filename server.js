@@ -37,7 +37,6 @@ app.use((request, _, next) => {
     const method = request.method;
     const url = request.url;
     const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
-
     const userAgent = request.useragent;
 
     // Vérifiez que userAgent est défini avant d'accéder à ses propriétés
@@ -47,16 +46,13 @@ app.use((request, _, next) => {
     }
 
     const logMessage = `Request [${ip}] : ${method} - ${url} - ${deviceInfo} (${formattedDate})\n`;
-    const logFilePath = './logs/logs.txt';
 
-    writeOnFile(logFilePath, logMessage)
+    writeOnFile(logMessage)
         .then(() => console.log('Log written successfully'))
         .catch(err => console.error('Error writing to log file', err));
 
-    
     next();
 });
-
 /**
  * Retrieves the initial list of stocks.
  * @memberof module:routes/
