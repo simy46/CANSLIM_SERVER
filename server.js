@@ -36,7 +36,9 @@ app.use((request, _, next) => {
     const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
     const userAgent = request.useragent;
 
-    const deviceInfo = `${userAgent.platform} ${userAgent.os} ${userAgent.browser}`;
+    console.log(userAgent)
+
+    // const deviceInfo = `${userAgent.platform} ${userAgent.os} ${userAgent.browser}`;
     
     console.log(`New HTTP request: ${method} ${url} : ${formattedDate} from : ${ip} using ${deviceInfo}`);
     next();
