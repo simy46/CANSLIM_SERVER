@@ -30,15 +30,7 @@ app.get('/', (req, res) => {
 app.use((request, _, next) => {
     const date = new Date();
     const formattedDate = date.toLocaleString('fr-CA', { hour12: false });
-
-    const method = request.method;
-    const url = request.url;
-    const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
-    const userAgent = request.useragent;
-
-    const deviceInfo = `${userAgent.platform} ${userAgent.os} ${userAgent.browser}`;
-    
-    console.log(`New HTTP request: ${method} ${url} : ${formattedDate} from : ${ip} using ${deviceInfo}`);
+    console.log(`New HTTP request: ${request.method} ${request.url} : ${formattedDate}`);
     next();
 });
 
