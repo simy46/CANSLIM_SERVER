@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
 import { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers } from './services/stockService.js';
 import { checkStock } from './services/checklistCalculator.js';
@@ -15,6 +16,7 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
+app.use(useragent.express());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
@@ -34,13 +36,16 @@ app.use((request, _, next) => {
     const method = request.method;
     const url = request.url;
     const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
+
     const userAgent = request.useragent;
 
-    console.log(userAgent)
+    // Vérifiez que userAgent est défini avant d'accéder à ses propriétés
+    let deviceInfo = 'Unknown';
+    if (userAgent) {
+        deviceInfo = `${userAgent.platform} ${userAgent.os} ${userAgent.browser}`;
+    }
 
-    // const deviceInfo = `${userAgent.platform} ${userAgent.os} ${userAgent.browser}`;
-    
-    console.log(`New HTTP request: ${method} ${url} : ${formattedDate} from : ${ip}`); //  using ${deviceInfo}
+    console.log(`Request [${ip}] : ${method} - ${url} - ${deviceInfo} (${formattedDate})`);
     next();
 });
 
