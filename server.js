@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import fs from 'fs';
 import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
