@@ -6,7 +6,6 @@ import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
 import { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers } from './services/stockService.js';
 import { checkStock } from './services/checklistCalculator.js';
-import { writeOnFile } from './services/fileManager.js';
 import HTTP_STATUS from './services/http.js';
 
 const app = express();
@@ -24,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 
-const logFilePath = path.resolve('./logs/logs.txt');
+const logFilePath = path.resolve('./logs.txt');
 
 app.get('/', (_, res) => {
     res.status(200).send('Welcome to the CANSLIM Calculator API');
