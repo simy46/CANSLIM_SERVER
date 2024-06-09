@@ -130,6 +130,7 @@ app.get('/api/search', async (req, res) => {
 app.post('/api/market-news', async (req, res) => {
     try {
         let tickers = req.body
+        console.log(tickers)
         if (!tickers) {
             tickers = await getTrendingStocks(10);
         } 
