@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import fs from 'fs';
 import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
 import { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers } from './services/stockService.js';
@@ -49,9 +50,11 @@ app.use((request, _, next) => {
 
     console.log(logMessage)
 
-    writeOnFile(logMessage)
+    fs.writeFile('logs.txt', logMessage);
+
+    /*writeOnFile(logMessage)
         .then(() => console.log(`Log written successfully : ${logMessage}`))
-        .catch(err => console.error('Error writing to log file', err));
+        .catch(err => console.error('Error writing to log file', err));*/
     next();
 });
 /**
