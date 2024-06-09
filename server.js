@@ -23,7 +23,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 
-app.get('/', (req, res) => {
+const logFilePath = path.resolve('./logs/logs.txt');
+
+app.get('/', (_, res) => {
     res.status(200).send('Welcome to the CANSLIM Calculator API');
 });
 
@@ -57,9 +59,11 @@ app.use((request, _, next) => {
             console.log(`Log written successfully : ${logMessage}`);
         }
     });
-    /*writeOnFile(logMessage)
+    /*
+    writeOnFile(logMessage)
         .then(() => console.log(`Log written successfully : ${logMessage}`))
-        .catch(err => console.error('Error writing to log file', err));*/
+        .catch(err => console.error('Error writing to log file', err));
+    */
     next();
 });
 /**
