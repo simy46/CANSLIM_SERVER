@@ -50,8 +50,13 @@ app.use((request, _, next) => {
 
     console.log(logMessage)
 
-    fs.writeFile('logs.txt', logMessage);
-
+    fs.appendFile(logFilePath, logMessage, (err) => {
+        if (err) {
+            console.error('Error writing to log file', err);
+        } else {
+            console.log(`Log written successfully : ${logMessage}`);
+        }
+    });
     /*writeOnFile(logMessage)
         .then(() => console.log(`Log written successfully : ${logMessage}`))
         .catch(err => console.error('Error writing to log file', err));*/
