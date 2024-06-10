@@ -1,14 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import fs from 'fs';
 import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
 import { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers } from './services/stockService.js';
 import { checkStock } from './services/checklistCalculator.js';
 import HTTP_STATUS from './services/http.js';
-
 
 const app = express();
 const PORT = process.env.PORT || 5020;
@@ -20,9 +18,6 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 app.use(useragent.express());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -33,8 +28,6 @@ const logFilePath = path.resolve('./logs.txt');
 app.get('/', (_, res) => {
     res.status(200).send('Welcome to the CANSLIM Calculator API');
 });
-
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 
 /**
@@ -73,7 +66,6 @@ app.use((request, _, next) => {
     */
     next();
 });
-
 
 /**
  * Retrieves the initial list of stocks.
