@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import logger from './services/logger.js';
-import path from 'path';
+// import logger from './services/logger.js';
 import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
 import { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers } from './services/stockService.js';
@@ -24,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 
 // Middleware to log new HTTP requests
-app.use((request, _, next) => {
+/*app.use((request, _, next) => {
     const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
     const method = request.method;
     const url = request.url;
@@ -34,7 +33,7 @@ app.use((request, _, next) => {
     logger.info(logMessage);
 
     next();
-});
+});*/
 
 
 app.get('/', (_, res) => {
