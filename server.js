@@ -66,6 +66,10 @@ app.use((request, _, next) => {
     */
     next();
 });
+
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
+
 /**
  * Retrieves the initial list of stocks.
  * @memberof module:routes/
