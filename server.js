@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import logger from './logger.js';
+import logger from './services/logger.js';
 import path from 'path';
 import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
@@ -22,8 +22,6 @@ app.use(useragent.express());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
-
-const logFilePath = path.resolve('./logs.txt');
 
 app.get('/', (_, res) => {
     res.status(200).send('Welcome to the CANSLIM Calculator API');
