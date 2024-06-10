@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import logger from './logger.js';
 import path from 'path';
-import fs from 'fs';
 import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
 import { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers } from './services/stockService.js';
@@ -30,42 +30,18 @@ app.get('/', (_, res) => {
 });
 
 
-/**
- * Middleware to log new HTTP requests.
- */
+// Middleware to log new HTTP requests
 app.use((request, _, next) => {
-    const date = new Date();
-    const formattedDate = date.toLocaleString('fr-CA', { hour12: false });
-
+    const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
     const method = request.method;
     const url = request.url;
-    const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
-    const userAgent = request.useragent;
-
-    // Vérifiez que userAgent est défini avant d'accéder à ses propriétés
-    let deviceInfo = 'Unknown';
-    if (userAgent) {
-        deviceInfo = `${userAgent.platform} ${userAgent.os} ${userAgent.browser}`;
-    }
-
-    const logMessage = `Request [${ip}] : ${method} - ${url} - ${deviceInfo} (${formattedDate})\n`;
-
-    console.log(logMessage)
-
-    fs.appendFile(logFilePath, logMessage, (err) => {
-        if (err) {
-            console.error('Error writing to log file', err);
-        } else {
-            console.log(`Log written successfully : ${logMessage}`);
-        }
-    });
-    /*
-    writeOnFile(logMessage)
-        .then(() => console.log(`Log written successfully : ${logMessage}`))
-        .catch(err => console.error('Error writing to log file', err));
-    */
+    const userAgent = request.headers['user-agent'] || 'Unknown';
+  
+    const logMessage = `Request [${ip}] : ${method} - ${url} - ${userAgent}`;
+    logger.info(logMessage);
+  
     next();
-});
+  });
 
 /**
  * Retrieves the initial list of stocks.
