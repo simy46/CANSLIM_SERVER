@@ -15,6 +15,7 @@
         "express": "^4.19.2",
         "express-useragent": "^1.0.15",
         "winston": "^3.13.0",
+        "winston-daily-rotate-file": "^5.0.0",
         "yahoo-finance2": "^2.11.2"
     }
 }

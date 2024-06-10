@@ -23,23 +23,24 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 
-app.get('/', (_, res) => {
-    res.status(200).send('Welcome to the CANSLIM Calculator API');
-});
-
-
 // Middleware to log new HTTP requests
 app.use((request, _, next) => {
     const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
     const method = request.method;
     const url = request.url;
     const userAgent = request.headers['user-agent'] || 'Unknown';
-  
+
     const logMessage = `Request [${ip}] : ${method} - ${url} - ${userAgent}`;
     logger.info(logMessage);
-  
+
     next();
-  });
+});
+
+
+app.get('/', (_, res) => {
+    res.status(200).send('Welcome to the CANSLIM Calculator API');
+});
+
 
 /**
  * Retrieves the initial list of stocks.
