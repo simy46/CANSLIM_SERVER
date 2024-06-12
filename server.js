@@ -3,7 +3,7 @@ import cors from 'cors';
 // import logger from './services/logger.js';
 import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
-import { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers } from './services/stockService.js';
+import { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers, getTrendingStocks } from './services/stockService.js';
 import { checkStock } from './services/checklistCalculator.js';
 import HTTP_STATUS from './services/http.js';
 

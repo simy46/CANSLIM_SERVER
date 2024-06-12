@@ -71,8 +71,6 @@ async function getStockData(ticker) {
 }
 
 
-
-
 function calculateChecklist(stockData) {
     const benchmarks = {
         currentSharePrice: 15,
@@ -92,15 +90,6 @@ function calculateChecklist(stockData) {
     const epsGrowth = calculations.calculateRecentEpsGrowth(stockData);
     const relativeStrengthRating = calculations.calculateRelativeStrengthRating(stockData);
     const acceleratingEarningsGrowth = calculations.calculateAcceleratingEarningsGrowthFromEarningsData(quarterlyData);
-
-
-    const historicalEPS = stockData.historicalEarnings.map(entry => entry.epsActual);
-    const currentVolume = summaryDetail.volume;
-    const averageVolume = summaryDetail.averageVolume;
-    const idealBuyPoint = Math.max(...stockData.historicalPrices.slice(-3).map(price => price.high));
-
-    const margin = calculations.calculateMarginFromIncomeStatement(stockData.incomeStatementHistory);
-    const fundOwnershipData = calculations.extractFundOwnershipData(stockData);
     
     const roe = { // Check //
         value: returnOnEquity,
@@ -134,6 +123,7 @@ function calculateChecklist(stockData) {
         stockInfo: stockData.stockInfo,
 
                 // Big Rock 1 // manque 3 attributs //
+
         //compositeRatingResult: calculations.calculateCompositeRating(data),                           // Composite Rating of 95 or higher
         // epsRatingResult: calculations.calculateEpsRating(stockData, ratingThresholds),               // EPS Rating of 80 or higher
         epsGrowth: epsGrowth,                                                                           // EPS growth 25% or higher in recent quarters
@@ -147,14 +137,16 @@ function calculateChecklist(stockData) {
 
 
                 // Big Rock 2 //
+
         increaseInFundsOwnership: calculations.calculateIncreaseInFundsOwnership(ownershipList),
         accumulationDistributionRating: calculations.calculateADRating(stockData.historicalPrices),     // Accumulation/Distribution Rating of A, B or C
-        relativeStrengthRating: relativeStrengthRating,
+        relativeStrengthRating: relativeStrengthRating,                                                 // Relative Strength Rating of 80 or higher
         currentSharePrice: currentSharePrice,                                                           // Share price above $15
         averageDailyVolume: averageDailyVolume,                                                         // Average daily volume of 400,000 shares or more 
 
 
                 // Big Rock 3 //
+
         breakingOutOfSoundBase: calculations.calculateBreakout(stockData),                              // Breaking out of sound base or alternative buy point
         volumeAboveAverage: calculations.calculateVolumeAboveAverage(summaryDetail),                    // Volume at least 40% to 50% above average on breakout
         rsLine: calculations.calculateRelativeStrengthLineInNewHigh(stockData),                         // Relative strength line in new high ground
