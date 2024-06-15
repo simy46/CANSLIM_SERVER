@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-// import logger from './services/logger.js';
 import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
 import { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers, getTrendingStocks } from './services/stockService.js';
@@ -9,7 +8,6 @@ import HTTP_STATUS from './services/http.js';
 
 const app = express();
 const PORT = process.env.PORT || 5020;
-console.log(`PORT : ${PORT}`)
 const corsOptions = {
     allowedHeaders: ['Content-Type', 'If-None-Match'],
     exposedHeaders: ['ETag'], 
@@ -23,17 +21,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 
 // Middleware to log new HTTP requests
-/*app.use((request, _, next) => {
+app.use((request, _, next) => {
     const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
     const method = request.method;
     const url = request.url;
     const userAgent = request.headers['user-agent'] || 'Unknown';
 
-    const logMessage = `Request [${ip}] : ${method} - ${url} - ${userAgent}`;
-    logger.info(logMessage);
-
+    const logMessage = `Request ${method} - ${url} - ${userAgent} [${ip}]`;
+    console.log(logMessage);
     next();
-});*/
+});
 
 
 app.get('/', (_, res) => {
