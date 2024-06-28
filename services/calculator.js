@@ -1,24 +1,42 @@
-export function calculateCompositeRating(data) { // OKAY NEEDS TO BE STUDIED //
-    const { epsGrowthResult, salesGrowthResult, roeResult, relativeStrengthRatingResult, accumulationDistributionRatingResult } = data;
-
-    if ([epsGrowthResult, salesGrowthResult, roeResult, relativeStrengthRatingResult, accumulationDistributionRatingResult].some(result => result.value === null || result.value === undefined || isNaN(parseFloat(result.value.replace('%', ''))))) {
-        return { value: null };
-    }
-
-    const normalize = (value, base) => {
-        let numericValue = parseFloat(value.replace('%', ''));
-        return Math.min(Math.max((numericValue / base) * 100, 0), 100);
+export function calculateCompositeRating(data) {
+    // weights
+    const weights = {
+        epsGrowth: 0.30,
+        salesGrowth: 0.10,
+        roe: 0.10,
+        relativeStrength: 0.30,
+        acceleratingGrowth: 0.10,
+        percentOffHigh: 0.10
     };
 
-    const normalizedEpsGrowth = normalize(epsGrowthResult.value, 25);
-    const normalizedSalesGrowth = normalize(salesGrowthResult.value, 25);
-    const normalizedROE = normalize(roeResult.value, 17);
-    const normalizedRelativeStrengthRating = normalize(relativeStrengthRatingResult.value, 100);
-    const normalizedAccumulationDistributionRating = accumulationDistributionRatingResult.value === 'A' ? 100 : accumulationDistributionRatingResult.value === 'B' ? 80 : accumulationDistributionRatingResult.value === 'C' ? 60 : 40;
+    // Normalize the values to be between 0 and 1
+    const normalize = (value) => {
+        return parseFloat(value.replace('%', '')) / 100;
+    };
 
-    const compositeRating = (normalizedEpsGrowth + normalizedSalesGrowth + normalizedROE + normalizedRelativeStrengthRating + normalizedAccumulationDistributionRating) / 5;
+    // Extract and normalize the data
+    const normalizedData = {
+        epsGrowth: normalize(data.epsGrowthResult.value),
+        salesGrowth: normalize(data.salesGrowthResult.value),
+        roe: normalize(data.roeResult.value),
+        relativeStrength: normalize(data.relativeStrengthRatingResult.value),
+        acceleratingGrowth: data.acceleratingGrowthResult.bool ? 1 : 0,
+        percentOffHigh: data.percentOffHighResult
+    };
 
-    return { value: `${compositeRating.toFixed(2)} %`, bool: compositeRating >= 95 };
+    // Calculate weighted sum
+    const compositeRating = (normalizedData.epsGrowth * weights.epsGrowth) +
+                            (normalizedData.salesGrowth * weights.salesGrowth) +
+                            (normalizedData.roe * weights.roe) +
+                            (normalizedData.relativeStrength * weights.relativeStrength) +
+                            (normalizedData.acceleratingGrowth * weights.acceleratingGrowth) +
+                            (normalizedData.percentOffHigh * weights.percentOffHigh);
+
+    // Scale to 100 and return as a string with a boolean flag
+    const value = `${(compositeRating * 100).toFixed(2)} %`;
+    const bool = compositeRating * 100 >= 95;
+
+    return { value: value, bool: bool };
 }
 
 

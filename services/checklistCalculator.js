@@ -30,6 +30,13 @@ async function getStockData(ticker) {
 
         stockData.stockInfo = stockInfo;
 
+        // Calculate percentOffHigh
+        const currentPrice = stockInfo.regularMarketPrice;
+        const high52Week = stockInfo.fiftyTwoWeekHigh;
+        const percentOffHigh = ((1 - (currentPrice / high52Week)) * 100).toFixed(2);
+
+        stockData.percentOffHigh = percentOffHigh;
+
         // Historical prices and other historical data can remain the same
         const historicalPrices = await yahooFinance.historical(ticker, {
             period1: '2010-01-01', // Can be modified
@@ -116,7 +123,8 @@ function calculateChecklist(stockData) {
         salesGrowth: salesGrowth, 
         roeResult: roe, 
         relativeStrength: relativeStrengthRating, 
-        acceleratingGrowth: acceleratingEarningsGrowth
+        acceleratingGrowth: acceleratingEarningsGrowth,
+        percentOffHighResult: (stockData.percentOffHigh / 100)
     }
     
     const results = {
@@ -124,7 +132,7 @@ function calculateChecklist(stockData) {
 
                 // Big Rock 1 // manque 3 attributs //
 
-        //compositeRatingResult: calculations.calculateCompositeRating(data),                           // Composite Rating of 95 or higher
+        compositeRatingResult: calculations.calculateCompositeRating(data),                             // Composite Rating of 95 or higher
         // epsRatingResult: calculations.calculateEpsRating(stockData, ratingThresholds),               // EPS Rating of 80 or higher
         epsGrowth: epsGrowth,                                                                           // EPS growth 25% or higher in recent quarters
         acceleratingEarningsGrowth: acceleratingEarningsGrowth,                                         // Accelerating earnings growth
