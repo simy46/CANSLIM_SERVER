@@ -54,33 +54,9 @@ export function calculateEpsRating(stockData) {
     return epsRatingResult;
 }
 
-
-function calculateRecentEpsGrowth(stockData) {
-    const earningsHistory = stockData.earnings.financialsChart.quarterly;
-
-    console.log(`EARNING HISTORY : ${earningsHistory}`)
-
-    if (!earningsHistory || earningsHistory.length < 2) {
-        return { value: null, bool: false };
-    }
-
-    const [mostRecent, previous] = earningsHistory.slice(-2);
-    console.log(`MOST RECENT : ${mostRecent}`)
-    console.log(`PREVIOUS : ${previous}`)
-    const recentGrowth = ((mostRecent.earnings - previous.earnings) / previous.earnings) * 100;
-
-    console.log(`RECENT GROWTH : ${recentGrowth}`)
-
-    const value = `${recentGrowth.toFixed(2)}%`;
-    const bool = recentGrowth >= 25; // Example threshold
-
-    return { value: value, bool: bool };
-}
-
-
 function approximateEpsRating(recentGrowth, annualGrowth) {
     if (recentGrowth.value === null || annualGrowth.value === null) {
-        return { value: null, bool: false };
+        return { value: null, bool: false }; // bad data
     }
 
     const recentGrowthValue = parseFloat(recentGrowth.value.replace('%', ''));
