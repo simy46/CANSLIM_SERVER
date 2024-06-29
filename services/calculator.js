@@ -81,39 +81,6 @@ export function calculateAverageDailyVolume(averageVolume, benchmarkVolume) {
     return { value: value, bool: bool };
 }
 
-
-export function calculateEpsRating(stockData, ratingThresholds) {
-    if (!stockData.earnings?.financialsChart?.quarterly || !stockData.defaultKeyStatistics?.sharesOutstanding) {
-        return { value: null }; // Bad data
-    }
-
-    const quarterlyEarnings = stockData.earnings.financialsChart.quarterly;
-    const sharesOutstanding = stockData.defaultKeyStatistics.sharesOutstanding;
-
-    if (quarterlyEarnings.length < 4) { // Not enough data
-        return { value: null };
-    }
-
-    const quarterlyEps = quarterlyEarnings.map(e => e.earnings / sharesOutstanding);
-    const validEps = quarterlyEps.filter(eps => eps !== null && !isNaN(eps) && eps > 0);
-
-    if (validEps.length < 4) {
-        return { value: null }; // Not enough data
-    }
-
-    const growthRates = validEps.slice(1).map((eps, i) => {
-        const previousEps = validEps[i];
-        return ((eps - previousEps) / previousEps) * 100;
-    });
-
-    const averageGrowth = growthRates.reduce((sum, rate) => sum + rate, 0) / growthRates.length;
-
-    let rating = ratingThresholds.find(t => averageGrowth >= t.growthRate)?.rating || 50; // Default value if threshold exceeded
-
-    return { value: `${rating.toFixed(2)} %`, bool: rating >= 80 };
-}
-
-
 export function calculateRecentEpsGrowth(stockData) {
     // Validate the presence of necessary data
     if (!stockData.earnings || !stockData.earnings.earningsChart || !stockData.earnings.earningsChart.quarterly) {
