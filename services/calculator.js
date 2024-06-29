@@ -65,11 +65,8 @@ function approximateEpsRating(recentGrowth, annualGrowth) {
     // Combine the two growth rates
     const combinedGrowth = (recentGrowthValue + annualGrowthValue) / 2;
 
-    console.log(`COMBINED GROWTH : ${combinedGrowth}`)
-
     // Assuming a distribution of growth rates, map to a 1-99 scale
     const epsRating = Math.min(Math.max(Math.floor((combinedGrowth / 100) * 99), 1), 99);
-    console.log(`EPS RATING : ${epsRating}`)
 
     return { value: `${epsRating.toFixed(2)} %`, bool: epsRating >= 80 }; // EPS Rating of 80 or higher
 }
