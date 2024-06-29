@@ -32,8 +32,13 @@ async function getStockData(ticker) {
 
         // Calculate percentOffHigh
         const currentPrice = stockInfo.regularMarketPrice;
+        console.log(currentPrice)
         const high52Week = stockInfo.fiftyTwoWeekHigh;
+        console.log(high52Week)
+
         const percentOffHigh = ((1 - (currentPrice / high52Week)) * 100).toFixed(2);
+
+        console.log(percentOffHigh)
 
         stockData.percentOffHigh = percentOffHigh;
 
