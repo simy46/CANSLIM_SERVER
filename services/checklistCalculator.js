@@ -26,7 +26,7 @@ async function getStockData(ticker) {
     try {
         const stockData = await yahooFinance.quoteSummary(ticker, queryOptions, { validateResult: false });
 
-        const stockInfo = await yahooFinance.quote(ticker, { fields: [ "symbol", "displayName" ] });
+        const stockInfo = await yahooFinance.quote(ticker, { fields: [ "symbol", "displayName", "regularMarketPrice", "fiftyTwoWeekHigh"  ] });
 
         stockData.stockInfo = stockInfo;
 
