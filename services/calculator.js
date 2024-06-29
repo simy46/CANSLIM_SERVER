@@ -2,7 +2,7 @@ export function calculateCompositeRating(data) {
 
     if (!data.epsGrowthResult.value || !data.salesGrowthResult.value || 
         !data.roeResult.value || !data.relativeStrengthRatingResult ||
-        !data.percentOffHighResult || data.acceleratingEarningsGrowth.value === null) {
+        !data.percentOffHighResult) {
         console.log(JSON.parse(JSON.stringify(data)))
         return { value:null }
     }
