@@ -120,10 +120,10 @@ function calculateChecklist(stockData) {
     ];
     const data = {
         epsGrowthResult: epsGrowth, 
-        salesGrowth: salesGrowth, 
+        salesGrowthResult: salesGrowth, 
         roeResult: roe, 
-        relativeStrength: relativeStrengthRating, 
-        acceleratingGrowth: acceleratingEarningsGrowth,
+        relativeStrengthRatingResult: relativeStrengthRating, 
+        acceleratingGrowthResult: acceleratingEarningsGrowth,
         percentOffHighResult: (stockData.percentOffHigh / 100)
     }
     
