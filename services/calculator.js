@@ -3,12 +3,8 @@ export function calculateCompositeRating(data) {
     if (!data.epsGrowthResult.value || !data.salesGrowthResult.value || 
         !data.roeResult.value || !data.relativeStrengthRatingResult ||
         !data.percentOffHighResult) {
-        console.log(JSON.parse(JSON.stringify(data)))
         return { value:null }
     }
-
-    console.log(JSON.parse(JSON.stringify(data)))
-
 
     // weights
     const weights = {
@@ -35,9 +31,6 @@ export function calculateCompositeRating(data) {
         percentOffHigh: data.percentOffHighResult
     };
 
-    console.log(JSON.parse(JSON.stringify(normalizedData)))
-
-
     // Calculate weighted sum
     const compositeRating = (normalizedData.epsGrowth * weights.epsGrowth) +
                             (normalizedData.salesGrowth * weights.salesGrowth) +
@@ -46,8 +39,6 @@ export function calculateCompositeRating(data) {
                             (normalizedData.acceleratingGrowth * weights.acceleratingGrowth) +
                             (normalizedData.percentOffHigh * weights.percentOffHigh);
 
-    console.log(compositeRating)
-
     // Scale to 100 and return as a string with a boolean flag
     const value = `${(compositeRating * 100).toFixed(2)} %`;
     const bool = compositeRating * 100 >= 95;
@@ -55,6 +46,28 @@ export function calculateCompositeRating(data) {
     return { value: value, bool: bool };
 }
 
+export function calculateEpsRating(stockData) {
+    const { epsTrailingTwelveMonths, epsCurrentYear } = stockData.stockInfo;
+    const { sharesOutstanding } = stockData.stockInfo;
+
+    console.log(JSON.parse(JSON.stringify(stockData.stockInfo.epsTrailingTwelveMonths)))
+    console.log(JSON.parse(JSON.stringify(stockData.stockInfo.epsCurrentYear)))
+    console.log(JSON.parse(JSON.stringify(stockData.stockInfo.sharesOutstanding)))
+
+    if (!epsTrailingTwelveMonths || !sharesOutstanding) {
+        return { value: null, bool: false };
+    }
+
+    // Use trailing EPS if available, otherwise use current year EPS
+    const eps = epsTrailingTwelveMonths || epsCurrentYear;
+
+    console.log(eps)
+
+    const value = `${eps.toFixed(2)} USD`;
+    const bool = eps >= 80;
+
+    return { value: value, bool: bool };
+}
 
 export function calculateCurrentSharePrice(currentPrice, benchmarkPrice) {
     const value = `$${currentPrice.toFixed(2)}`;

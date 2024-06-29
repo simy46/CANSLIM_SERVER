@@ -26,20 +26,14 @@ async function getStockData(ticker) {
     try {
         const stockData = await yahooFinance.quoteSummary(ticker, queryOptions, { validateResult: false });
 
-        const stockInfo = await yahooFinance.quote(ticker, { fields: [ "symbol", "displayName", "regularMarketPrice", "fiftyTwoWeekHigh"  ] });
+        const stockInfo = await yahooFinance.quote(ticker, { fields: [ "symbol", "displayName", "regularMarketPrice", "fiftyTwoWeekHigh", "epsTrailingTwelveMonths", "epsCurrentYear", "sharesOutstanding"] });
 
         stockData.stockInfo = stockInfo;
 
         // Calculate percentOffHigh
         const currentPrice = stockInfo.regularMarketPrice;
-        console.log(currentPrice)
         const high52Week = stockInfo.fiftyTwoWeekHigh;
-        console.log(high52Week)
-
         const percentOffHigh = ((1 - (currentPrice / high52Week)) * 100).toFixed(2);
-
-        console.log(percentOffHigh)
-
         stockData.percentOffHigh = percentOffHigh;
 
         // Historical prices and other historical data can remain the same
@@ -116,13 +110,6 @@ function calculateChecklist(stockData) {
         bool: summaryDetail.averageVolume >= benchmarks.averageDailyVolume
     };
     
-    const ratingThresholds = [
-        { growthRate: 25, rating: 100 },
-        { growthRate: 20, rating: 90 },
-        { growthRate: 15, rating: 80 },
-        { growthRate: 10, rating: 70 },
-        { growthRate: 5, rating: 60 }
-    ];
     const data = {
         epsGrowthResult: epsGrowth, 
         salesGrowthResult: salesGrowth, 
@@ -138,7 +125,7 @@ function calculateChecklist(stockData) {
                 // Big Rock 1 // manque 3 attributs //
 
         compositeRatingResult: calculations.calculateCompositeRating(data),                             // Composite Rating of 95 or higher
-        // epsRatingResult: calculations.calculateEpsRating(stockData, ratingThresholds),               // EPS Rating of 80 or higher
+        epsRatingResult: calculations.calculateEpsRating(stockData),               // EPS Rating of 80 or higher
         epsGrowth: epsGrowth,                                                                           // EPS growth 25% or higher in recent quarters
         acceleratingEarningsGrowth: acceleratingEarningsGrowth,                                         // Accelerating earnings growth
         annualEpsGrowth: calculations.calculateAverageAnnualEpsGrowth(stockData),                       // Average Annual EPS growth 25% or more over last 3 years
