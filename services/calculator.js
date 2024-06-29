@@ -1,4 +1,15 @@
 export function calculateCompositeRating(data) {
+
+    if (!data.epsGrowthResult.value || !data.salesGrowthResult.value || 
+        !data.roeResult.value || !data.relativeStrengthRatingResult ||
+        !data.percentOffHighResult || data.acceleratingEarningsGrowth.value === null) {
+        console.log(JSON.parse(JSON.stringify(data)))
+        return { value:null }
+    }
+
+    console.log(JSON.parse(JSON.stringify(data)))
+
+
     // weights
     const weights = {
         epsGrowth: 0.30,
@@ -24,6 +35,9 @@ export function calculateCompositeRating(data) {
         percentOffHigh: data.percentOffHighResult
     };
 
+    console.log(JSON.parse(JSON.stringify(normalizedData)))
+
+
     // Calculate weighted sum
     const compositeRating = (normalizedData.epsGrowth * weights.epsGrowth) +
                             (normalizedData.salesGrowth * weights.salesGrowth) +
@@ -31,6 +45,8 @@ export function calculateCompositeRating(data) {
                             (normalizedData.relativeStrength * weights.relativeStrength) +
                             (normalizedData.acceleratingGrowth * weights.acceleratingGrowth) +
                             (normalizedData.percentOffHigh * weights.percentOffHigh);
+
+    console.log(compositeRating)
 
     // Scale to 100 and return as a string with a boolean flag
     const value = `${(compositeRating * 100).toFixed(2)} %`;
