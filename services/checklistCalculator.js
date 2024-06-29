@@ -109,7 +109,7 @@ function calculateChecklist(stockData) {
         value: `${summaryDetail.averageVolume.toLocaleString(undefined)} shares`,
         bool: summaryDetail.averageVolume >= benchmarks.averageDailyVolume
     };
-    
+
     const data = {
         epsGrowthResult: epsGrowth, 
         salesGrowthResult: salesGrowth, 
@@ -125,7 +125,7 @@ function calculateChecklist(stockData) {
                 // Big Rock 1 // manque 3 attributs //
 
         compositeRatingResult: calculations.calculateCompositeRating(data),                             // Composite Rating of 95 or higher
-        epsRatingResult: calculations.calculateEpsRating(stockData),               // EPS Rating of 80 or higher
+        epsRatingResult: calculations.calculateEpsRating(stockData),                                    // EPS Rating of 80 or higher
         epsGrowth: epsGrowth,                                                                           // EPS growth 25% or higher in recent quarters
         acceleratingEarningsGrowth: acceleratingEarningsGrowth,                                         // Accelerating earnings growth
         annualEpsGrowth: calculations.calculateAverageAnnualEpsGrowth(stockData),                       // Average Annual EPS growth 25% or more over last 3 years

@@ -47,26 +47,55 @@ export function calculateCompositeRating(data) {
 }
 
 export function calculateEpsRating(stockData) {
-    const { epsTrailingTwelveMonths, epsCurrentYear } = stockData.stockInfo;
-    const { sharesOutstanding } = stockData.stockInfo;
+    const recentEpsGrowth = calculateRecentEpsGrowth(stockData);
+    const annualEpsGrowth = calculateAverageAnnualEpsGrowth(stockData);   
 
-    console.log(JSON.parse(JSON.stringify(stockData.stockInfo.epsTrailingTwelveMonths)))
-    console.log(JSON.parse(JSON.stringify(stockData.stockInfo.epsCurrentYear)))
-    console.log(JSON.parse(JSON.stringify(stockData.stockInfo.sharesOutstanding)))
+    const epsRatingResult = approximateEpsRating(recentEpsGrowth, annualEpsGrowth);
+    return epsRatingResult;
+}
 
-    if (!epsTrailingTwelveMonths || !sharesOutstanding) {
+
+function calculateRecentEpsGrowth(stockData) {
+    const earningsHistory = stockData.earnings.financialsChart.quarterly;
+
+    console.log(`EARNING HISTORY : ${earningsHistory}`)
+
+    if (!earningsHistory || earningsHistory.length < 2) {
         return { value: null, bool: false };
     }
 
-    // Use trailing EPS if available, otherwise use current year EPS
-    const eps = epsTrailingTwelveMonths || epsCurrentYear;
+    const [mostRecent, previous] = earningsHistory.slice(-2);
+    console.log(`MOST RECENT : ${mostRecent}`)
+    console.log(`PREVIOUS : ${previous}`)
+    const recentGrowth = ((mostRecent.earnings - previous.earnings) / previous.earnings) * 100;
 
-    console.log(eps)
+    console.log(`RECENT GROWTH : ${recentGrowth}`)
 
-    const value = `${eps.toFixed(2)} USD`;
-    const bool = eps >= 80;
+    const value = `${recentGrowth.toFixed(2)}%`;
+    const bool = recentGrowth >= 25; // Example threshold
 
     return { value: value, bool: bool };
+}
+
+
+function approximateEpsRating(recentGrowth, annualGrowth) {
+    if (recentGrowth.value === null || annualGrowth.value === null) {
+        return { value: null, bool: false };
+    }
+
+    const recentGrowthValue = parseFloat(recentGrowth.value.replace('%', ''));
+    const annualGrowthValue = parseFloat(annualGrowth.value.replace('%', ''));
+
+    // Combine the two growth rates
+    const combinedGrowth = (recentGrowthValue + annualGrowthValue) / 2;
+
+    console.log(`COMBINED GROWTH : ${combinedGrowth}`)
+
+    // Assuming a distribution of growth rates, map to a 1-99 scale
+    const epsRating = Math.min(Math.max(Math.floor((combinedGrowth / 100) * 99), 1), 99);
+    console.log(`EPS RATING : ${epsRating}`)
+
+    return { value: epsRating, bool: epsRating >= 80 }; // EPS Rating of 80 or higher
 }
 
 export function calculateCurrentSharePrice(currentPrice, benchmarkPrice) {
@@ -121,10 +150,6 @@ export function calculateRecentEpsGrowth(stockData) {
 
     return { value: value, bool: bool };
 }
-
-
-
-
 
 export function calculateThreeQuarterEpsGrowth(stockData) {
     if (!stockData.earnings || !stockData.earnings.financialsChart || !stockData.earnings.financialsChart.quarterly) {
