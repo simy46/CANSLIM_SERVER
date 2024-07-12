@@ -99,15 +99,18 @@ function calculateChecklist(stockData) {
     
     const roe = { // Check //
         value: returnOnEquity,
-        bool: returnOnEquityBool
+        bool: returnOnEquityBool,
+        weight: 6
     };
     const currentSharePrice = {    // Check //
         value: `$${currentPrice.toFixed(2)}`,
-        bool: currentPrice >= benchmarks.currentSharePrice
+        bool: currentPrice >= benchmarks.currentSharePrice, 
+        weight: 6
     };
     const averageDailyVolume = { // Check //
         value: `${summaryDetail.averageVolume.toLocaleString(undefined)} shares`,
-        bool: summaryDetail.averageVolume >= benchmarks.averageDailyVolume
+        bool: summaryDetail.averageVolume >= benchmarks.averageDailyVolume,
+        weight: 5
     };
 
     const data = {
