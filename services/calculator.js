@@ -365,6 +365,14 @@ function calculateADL(historicalPrices) {
     return adlValues;
 }
 
+function averageADLChange(adlValues) {
+    const changes = [];
+    for (let i = 1; i < adlValues.length; i++) {
+        changes.push(adlValues[i] - adlValues[i - 1]);
+    }
+    return changes.reduce((sum, change) => sum + change, 0) / changes.length;
+}
+
 export function calculateVolumeAboveAverage(summaryDetail) {
     if (!summaryDetail || summaryDetail.regularMarketVolume == null || summaryDetail.averageVolume == null) {
         return { value: null, weight: 7 }; // Bad data
