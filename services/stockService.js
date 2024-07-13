@@ -57,6 +57,10 @@ async function getMarketData(stocks) {
         lang: "en-US"
     };
 
+    if (!Array.isArray(stocks)) {
+        throw new TypeError('AAAAAA stocks.map is not a function');
+    }
+
     const dataPromises = stocks.map(stock =>
         yahooFinance.search(stock, queryOptions)
             .then(result => ({
