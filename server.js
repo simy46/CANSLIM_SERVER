@@ -101,22 +101,25 @@ app.get('/api/search', async (req, res) => {
  */
 app.post('/api/market-news', async (req, res) => {
     try {
+        console.log('Request body:', req.body);
         let { tickers } = req.body;
-        console.log(tickers)
-        if (!tickers || tickers.length === 0) {
+        console.log('Tickers type:', typeof tickers);
+        console.log('Tickers content:', tickers);
+
+        if (!Array.isArray(tickers) || tickers.length === 0) {
             tickers = await getTrendingStocks(10);
-        } 
-        const news = await getMarketData(tickers); 
-        console.log(news)
-        
-        if (news.length > 0) {
-            res.status(HTTP_STATUS.SUCCESS).json(news);
+        }
+
+        const news = await getMarketData(tickers);
+
+        if (news.news.length > 0) {
+            res.status(200).json(news);
         } else {
-            res.status(HTTP_STATUS.NOT_FOUND).send('No news found');
+            res.status(404).send('No news found');
         }
     } catch (error) {
         console.error('Erreur lors de la récupération des actualités:', error);
-        res.status(HTTP_STATUS.SERVER_ERROR).send('Internal server error');
+        res.status(500).send('Internal server error');
     }
 });
 
