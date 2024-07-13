@@ -101,11 +101,13 @@ app.get('/api/search', async (req, res) => {
  */
 app.post('/api/market-news', async (req, res) => {
     try {
-        let tickers = req.body;
+        let { tickers } = req.body;
+        console.log(tickers)
         if (!tickers || tickers.length === 0) {
             tickers = await getTrendingStocks(10);
         } 
         const news = await getMarketData(tickers); 
+        console.log(news)
         
         if (news.length > 0) {
             res.status(HTTP_STATUS.SUCCESS).json(news);
