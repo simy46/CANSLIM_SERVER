@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
-import { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers, getTrendingStocks } from './services/stockService.js';
+import { searchStocks, getInitialStocks, getMarketData, getStockNews, getDailyGainers, getTrendingStocks } from './services/stockService.js';
 import { checkStock } from './services/checklistCalculator.js';
 import HTTP_STATUS from './services/http.js';
 
@@ -105,7 +105,7 @@ app.post('/api/market-news', async (req, res) => {
         if (!tickers || tickers.length === 0) {
             tickers = await getTrendingStocks(10);
         } 
-        const news = await getNews(tickers); 
+        const news = await getMarketData(tickers); 
         
         if (news.length > 0) {
             res.status(HTTP_STATUS.SUCCESS).json(news);

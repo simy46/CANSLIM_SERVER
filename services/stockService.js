@@ -49,7 +49,7 @@ async function searchStocks(query) {
 }
 
 // MARKET NEWS //
-async function getNews(stocks) {
+async function getMarketData(stocks) {
     const queryOptions = {
         newsCount: 2,
         quotesCount: 0,
@@ -57,14 +57,34 @@ async function getNews(stocks) {
         lang: "en-US"
     };
 
-    const newsPromises = stocks.map(stock => 
+    const dataPromises = stocks.map(stock =>
         yahooFinance.search(stock, queryOptions)
-            .then(result => result.news || [])
+            .then(result => ({
+                news: result.news || [],
+                nav: result.nav || [],
+                lists: result.lists || [],
+                researchReports: result.researchReports || []
+            }))
     );
 
-    const newsResults = await Promise.all(newsPromises);
+    const dataResults = await Promise.all(dataPromises);
 
-    return newsResults.flat();
+    // Combine all results into a single object with each category
+    const combinedResults = {
+        news: [],
+        nav: [],
+        lists: [],
+        researchReports: []
+    };
+
+    dataResults.forEach(result => {
+        combinedResults.news.push(...result.news);
+        combinedResults.nav.push(...result.nav);
+        combinedResults.lists.push(...result.lists);
+        combinedResults.researchReports.push(...result.researchReports);
+    });
+
+    return combinedResults;
 }
 
 async function getStockNews(ticker) {
@@ -79,4 +99,4 @@ async function getStockNews(ticker) {
     return news
 }
 
-export { searchStocks, getInitialStocks, getNews, getStockNews, getDailyGainers, getTrendingStocks };
+export { searchStocks, getInitialStocks, getMarketData, getStockNews, getDailyGainers, getTrendingStocks };
