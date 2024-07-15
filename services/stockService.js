@@ -49,6 +49,7 @@ async function searchStocks(query) {
 }
 
 // MARKET NEWS //
+// MARKET NEWS //
 async function getMarketData(stocks) {
     const queryOptions = {
         newsCount: 2,
@@ -56,11 +57,7 @@ async function getMarketData(stocks) {
         region: "US",
         lang: "en-US"
     };
-
-    if (!Array.isArray(stocks)) {
-        throw new TypeError('AAAAAA stocks.map is not a function');
-    }
-
+    
     const dataPromises = stocks.map(stock =>
         yahooFinance.search(stock, queryOptions)
             .then(result => ({
@@ -81,8 +78,17 @@ async function getMarketData(stocks) {
         researchReports: []
     };
 
+    // Use a Set to track unique news UUIDs
+    const newsUUIDs = new Set();
+
     dataResults.forEach(result => {
-        combinedResults.news.push(...result.news);
+        result.news.forEach(newsItem => {
+            if (!newsUUIDs.has(newsItem.uuid)) {
+                newsUUIDs.add(newsItem.uuid);
+                combinedResults.news.push(newsItem);
+            }
+        });
+
         combinedResults.nav.push(...result.nav);
         combinedResults.lists.push(...result.lists);
         combinedResults.researchReports.push(...result.researchReports);
@@ -90,6 +96,7 @@ async function getMarketData(stocks) {
 
     return combinedResults;
 }
+
 
 async function getStockNews(ticker) {
     const queryOptions = {
