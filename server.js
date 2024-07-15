@@ -101,11 +101,8 @@ app.get('/api/search', async (req, res) => {
  */
 app.post('/api/market-news', async (req, res) => {
     try {
-        console.log('Request body:', req.body);
         let { tickers } = req.body;
-        console.log('Tickers type:', typeof tickers);
-        console.log('Tickers content:', tickers);
-
+        
         if (!Array.isArray(tickers) || tickers.length === 0) {
             tickers = await getTrendingStocks(10);
         }
