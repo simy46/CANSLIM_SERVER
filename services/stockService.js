@@ -10,7 +10,7 @@ async function getInitialStocks() {
             "regularMarketOpen", "regularMarketDayHigh", "regularMarketDayLow",
             "marketCap", "exchange", "region", "language", "quoteSourceName",
             "beta", "market", "regularMarketTime", "fiftyTwoWeekRange", "dividendDate",
-            "trailingAnnualDividendYield"
+            "trailingAnnualDividendYield", "regularMarketChange"
         ]
     };
     const validation = { validateResult: false }
@@ -18,6 +18,7 @@ async function getInitialStocks() {
     
     return results;
 }
+
 
 async function getTrendingStocks(count) {
     const options = {
