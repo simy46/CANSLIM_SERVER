@@ -7,7 +7,10 @@ async function getInitialStocks() {
         fields: [
             "displayName", "longName", "symbol", "regularMarketPrice", "currency",
             "regularMarketChange", "regularMarketChangePercent", "regularMarketVolume",
-            "regularMarketOpen", "regularMarketDayHigh", "regularMarketDayLow"
+            "regularMarketOpen", "regularMarketDayHigh", "regularMarketDayLow",
+            "marketCap", "exchange", "region", "language", "quoteSourceName",
+            "beta", "market", "regularMarketTime", "fiftyTwoWeekRange", "dividendDate",
+            "trailingAnnualDividendYield"
         ]
     };
     const validation = { validateResult: false }
