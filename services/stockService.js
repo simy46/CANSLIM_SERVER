@@ -16,6 +16,7 @@ async function getInitialStocks() {
     const validation = { validateResult: false }
     const results = await yahooFinance.quote(stocks, fields, validation);
     
+    console.log(JSON.parse(JSON.stringify(results)))
     return results;
 }
 
