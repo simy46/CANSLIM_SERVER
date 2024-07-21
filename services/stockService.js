@@ -1,7 +1,7 @@
 import yahooFinance from 'yahoo-finance2';
 
 // TRENDING STOCKS //
-async function getInitialStocks() {
+export async function getInitialStocks() {
     const stocks = await getTrendingStocks(10);
     const fields = {
         fields: [
@@ -21,7 +21,7 @@ async function getInitialStocks() {
 }
 
 
-async function getTrendingStocks(count) {
+export async function getTrendingStocks(count) {
     const options = {
         count: count,
         lang: "en-US"
@@ -31,7 +31,7 @@ async function getTrendingStocks(count) {
     return results;
 }
 
-async function getDailyGainers(count) {
+export async function getDailyGainers(count) {
     const validation = { validateResult: false }
     const queryOptions = { 
         count: count, 
@@ -46,7 +46,7 @@ async function getDailyGainers(count) {
 }
 
 // SEARCH SERVICE //
-async function searchStocks(query) {
+export async function searchStocks(query) {
     console.log(`Recherche de stocks correspondant à : ${query}`);
     const results = await yahooFinance.search(query)
     const filteredResults = results.quotes.filter((quote) => quote.isYahooFinance)
@@ -54,23 +54,14 @@ async function searchStocks(query) {
 }
 
 // MARKET NEWS //
-// MARKET NEWS //
-async function getMarketData(stocks) {
-    const queryOptions = {
-        newsCount: 2,
-        quotesCount: 0,
-        region: "US",
-        lang: "en-US"
-    };
-    
+export async function getMarketData(stocks) {
     const dataPromises = stocks.map(stock =>
-        yahooFinance.search(stock, queryOptions)
-            .then(result => ({
-                news: result.news || [],
-                nav: result.nav || [],
-                lists: result.lists || [],
-                researchReports: result.researchReports || []
-            }))
+        fetchAndProcessNews(stock, 2).then(news => ({
+            news: news,
+            nav: [],
+            lists: [],
+            researchReports: []
+        }))
     );
 
     const dataResults = await Promise.all(dataPromises);
@@ -94,6 +85,8 @@ async function getMarketData(stocks) {
             }
         });
 
+        // Since nav, lists, and researchReports are empty in this example,
+        // if you have actual data for these categories, you can process them similarly.
         combinedResults.nav.push(...result.nav);
         combinedResults.lists.push(...result.lists);
         combinedResults.researchReports.push(...result.researchReports);
@@ -103,16 +96,122 @@ async function getMarketData(stocks) {
 }
 
 
-async function getStockNews(ticker) {
+async function fetchAndProcessNews(ticker, newsCount) {
     const queryOptions = {
-        newsCount: 5,
+        newsCount: newsCount,
         quotesCount: 0,
         region: "US",
         lang: "en-US"
     };
-    const stock = await yahooFinance.search(ticker, queryOptions)
-    const news = stock.news
-    return news
+    
+    const stock = await yahooFinance.search(ticker, queryOptions);
+    const news = stock.news || [];
+
+    // Utiliser un Set pour éliminer les doublons basés sur l'UUID
+    const uniqueNews = [];
+    const newsUUIDs = new Set();
+
+    news.forEach(newsItem => {
+        if (!newsUUIDs.has(newsItem.uuid)) {
+            newsUUIDs.add(newsItem.uuid);
+            uniqueNews.push(newsItem);
+        }
+    });
+
+    return uniqueNews;
 }
 
-export { searchStocks, getInitialStocks, getMarketData, getStockNews, getDailyGainers, getTrendingStocks };
+
+export async function getStockDetails(ticker) {
+    const data = {};
+
+    // Quote Summary //
+    try {
+        const module = {
+            modules: [
+                'summaryDetail', 
+                'price', 
+                'defaultKeyStatistics', 
+                'incomeStatementHistory', 
+                'earnings', 
+                'financialData', 
+                'fundOwnership', 
+                'institutionOwnership', 
+                'majorDirectHolders', 
+                'majorHoldersBreakdown', 
+                'netSharePurchaseActivity',
+                'recommendationTrend'
+            ]
+        };
+        const stockInfo = await yahooFinance.quoteSummary(ticker, module);
+        data.quoteSummary = stockInfo;
+    } catch (error) {
+        console.error(`Error fetching quote summary data for ticker: ${ticker}`, error);
+        data.quoteSummary = null;
+    }
+    
+
+    // Options //
+    try {
+        const options = await yahooFinance.options(ticker);
+        data.options = options;
+    } catch (error) {
+        console.error(`Error fetching options data for ticker: ${ticker}`, error);
+        data.options = null;
+    }
+
+    // Profile //
+    try {
+        const profile = await yahooFinance.profile(ticker);
+        data.profile = profile;
+    } catch (error) {
+        console.error(`Error fetching profile data for ticker: ${ticker}`, error);
+        data.profile = null;
+    }
+
+    // Recommendations Symbols //
+    try {
+        const recommendations = await yahooFinance.recommendationsBySymbol(ticker);
+        data.recommendations = recommendations;
+    } catch (error) {
+        console.error(`Error fetching recommendations for ticker: ${ticker}`, error);
+        data.recommendations = null;
+    }
+
+    // News //
+    try {
+        const news = await getStockNews(ticker);
+        data.news = news;
+    } catch (error) {
+        console.error(`Error fetching news for ticker: ${ticker}`, error);
+        data.news = null;
+    }
+
+    // Chart //
+    try {
+        const chart = await yahooFinance.chart(ticker, { interval: '1d', range: '1mo' });
+        data.chart = chart;
+    } catch (error) {
+        console.error(`Error fetching chart data for ticker: ${ticker}`, error);
+        data.chart = null;
+    }
+
+    // Insights //
+    try {
+        const insights = await yahooFinance.insights(ticker);
+        data.insights = insights;
+    } catch (error) {
+        console.error(`Error fetching insights for ticker: ${ticker}`, error);
+        data.insights = null;
+    }
+
+    console.log(data);
+    return data;
+}
+
+
+async function getStockNews(ticker) {
+    return await fetchAndProcessNews(ticker, 20);
+}
+
+

@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
-import { searchStocks, getInitialStocks, getMarketData, getStockNews, getDailyGainers, getTrendingStocks } from './services/stockService.js';
+import * as services from './services/stockService.js';
 import { checkStock } from './services/checklistCalculator.js';
 import HTTP_STATUS from './services/http.js';
 
@@ -45,7 +45,7 @@ app.get('/', (_, res) => {
  */  
 app.get('/api/stocks/trending', async (req, res) => {
     try {
-        const stocks = await getInitialStocks();
+        const stocks = await services.getInitialStocks();
         const etag = generateETag(stocks);
 
         if (req.headers['if-none-match'] === etag) {
@@ -67,7 +67,7 @@ app.get('/api/stocks/trending', async (req, res) => {
  */  
 app.get('/api/stocks/daily-gainers', async (req, res) => {
     try {
-        const stocks = await getDailyGainers(10);
+        const stocks = await services.getDailyGainers(10);
         res.status(HTTP_STATUS.SUCCESS).json(stocks);
     } catch (error) {
         console.error('Erreur lors de la récupération des stocks:', error);
@@ -83,7 +83,7 @@ app.get('/api/stocks/daily-gainers', async (req, res) => {
 app.get('/api/search', async (req, res) => {
     try {
         const query = req.query.q;
-        const results = await searchStocks(query);
+        const results = await services.searchStocks(query);
         if (results) {
             res.status(HTTP_STATUS.SUCCESS).json(results)
         } else {
@@ -104,10 +104,10 @@ app.post('/api/market-news', async (req, res) => {
         let { tickers } = req.body;
         
         if (!Array.isArray(tickers) || tickers.length === 0) {
-            tickers = await getTrendingStocks(10);
+            tickers = await services.getTrendingStocks(10);
         }
 
-        const news = await getMarketData(tickers);
+        const news = await services.getMarketData(tickers);
 
         if (news.news.length > 0) {
             res.status(200).json(news);
@@ -125,13 +125,22 @@ app.get('/api/check-stock', async (req, res) => {
     try {
         const ticker = req.query.symbol;
         const checklistResults = await checkStock(ticker);
-        const stockNews = await getStockNews(ticker)
         res.status(HTTP_STATUS.SUCCESS).json({
             checkList: checklistResults,
-            news: stockNews
         });
     } catch (error) {
         console.error('Erreur lors de la vérification de l\'action:', error);
+        res.status(HTTP_STATUS.SERVER_ERROR).send('Internal server error');
+    }
+});
+
+app.get('/api/stock-details', async (req, res) => {
+    try {
+        const ticker = req.query.symbol;
+        const stockDetails = await services.getStockDetails(ticker);
+        res.status(HTTP_STATUS.SUCCESS).json(stockDetails);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des détails de l\'action:', error);
         res.status(HTTP_STATUS.SERVER_ERROR).send('Internal server error');
     }
 });
