@@ -125,9 +125,7 @@ app.get('/api/check-stock', async (req, res) => {
     try {
         const ticker = req.query.symbol;
         const checklistResults = await checkStock(ticker);
-        res.status(HTTP_STATUS.SUCCESS).json({
-            checkList: checklistResults,
-        });
+        res.status(HTTP_STATUS.SUCCESS).json(checklistResults);
     } catch (error) {
         console.error('Erreur lors de la vérification de l\'action:', error);
         res.status(HTTP_STATUS.SERVER_ERROR).send('Internal server error');
