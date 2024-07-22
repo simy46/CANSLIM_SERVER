@@ -94,8 +94,10 @@ async function getStockData(ticker) {
     }
 
     try {
-        const chartDataSP500 = await yahooFinance.chart('^GSPC', { range: '6mo', interval: '1d' });
-        const chartDataNASDAQ = await yahooFinance.chart('^IXIC', { range: '6mo', interval: '1d' });
+        const period1 = '2023-01-01';
+        const period2 = new Date().toISOString().split('T')[0];
+        const chartDataSP500 = await yahooFinance.chart('^GSPC', { period1, period2, interval: '1d' });
+        const chartDataNASDAQ = await yahooFinance.chart('^IXIC', { period1, period2, interval: '1d' });
         stockData.chartDataSP500 = chartDataSP500;
         stockData.chartDataNASDAQ = chartDataNASDAQ;
     } catch (error) {

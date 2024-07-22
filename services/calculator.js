@@ -1,4 +1,48 @@
 // MARKET TREND //
+function calculateEMA(data, period) {
+    const prices = data.map(entry => entry.close);
+    const k = 2 / (period + 1);
+    let ema = [prices[0]];
+    for (let i = 1; i < prices.length; i++) {
+        ema.push(prices[i] * k + ema[i - 1] * (1 - k));
+    }
+    return ema;
+}
+
+function calculateRSI(data, period = 14) {
+    const prices = data.map(entry => entry.close);
+    let gains = 0, losses = 0;
+    for (let i = 1; i <= period; i++) {
+        const change = prices[i] - prices[i - 1];
+        if (change > 0) gains += change;
+        else losses -= change;
+    }
+    let avgGain = gains / period;
+    let avgLoss = losses / period;
+    let rsi = [100 - (100 / (1 + avgGain / avgLoss))];
+
+    for (let i = period + 1; i < prices.length; i++) {
+        const change = prices[i] - prices[i - 1];
+        if (change > 0) {
+            avgGain = ((avgGain * (period - 1)) + change) / period;
+            avgLoss = (avgLoss * (period - 1)) / period;
+        } else {
+            avgGain = (avgGain * (period - 1)) / period;
+            avgLoss = ((avgLoss * (period - 1)) - change) / period;
+        }
+        rsi.push(100 - (100 / (1 + avgGain / avgLoss)));
+    }
+    return rsi;
+}
+
+function calculateMACD(data, fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) {
+    const emaFast = calculateEMA(data, fastPeriod);
+    const emaSlow = calculateEMA(data, slowPeriod);
+    const macd = emaFast.map((value, index) => value - emaSlow[index]);
+    const signal = calculateEMA(macd.map(value => ({ close: value })), signalPeriod);
+    return { macd, signal };
+}
+
 export function determineMarketTrend(sp500HistoricalPrices, nasdaqHistoricalPrices) {
     const sp500EMA20 = calculateEMA(sp500HistoricalPrices, 20).slice(-1)[0];
     const sp500EMA50 = calculateEMA(sp500HistoricalPrices, 50).slice(-1)[0];
@@ -48,51 +92,6 @@ export function determineMarketTrend(sp500HistoricalPrices, nasdaqHistoricalPric
         weight: 10
     };
 }
-
-function calculateEMA(data, period) {
-    const prices = data.map(entry => entry.close);
-    const k = 2 / (period + 1);
-    let ema = [prices[0]];
-    for (let i = 1; i < prices.length; i++) {
-        ema.push(prices[i] * k + ema[i - 1] * (1 - k));
-    }
-    return ema;
-}
-
-function calculateRSI(data, period = 14) {
-    const prices = data.map(entry => entry.close);
-    let gains = 0, losses = 0;
-    for (let i = 1; i <= period; i++) {
-        const change = prices[i] - prices[i - 1];
-        if (change > 0) gains += change;
-        else losses -= change;
-    }
-    let avgGain = gains / period;
-    let avgLoss = losses / period;
-    let rsi = [100 - (100 / (1 + avgGain / avgLoss))];
-
-    for (let i = period + 1; i < prices.length; i++) {
-        const change = prices[i] - prices[i - 1];
-        if (change > 0) {
-            avgGain = ((avgGain * (period - 1)) + change) / period;
-            avgLoss = (avgLoss * (period - 1)) / period;
-        } else {
-            avgGain = (avgGain * (period - 1)) / period;
-            avgLoss = ((avgLoss * (period - 1)) - change) / period;
-        }
-        rsi.push(100 - (100 / (1 + avgGain / avgLoss)));
-    }
-    return rsi;
-}
-
-function calculateMACD(data, fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) {
-    const emaFast = calculateEMA(data, fastPeriod);
-    const emaSlow = calculateEMA(data, slowPeriod);
-    const macd = emaFast.map((value, index) => value - emaSlow[index]);
-    const signal = calculateEMA(macd.map(value => ({ close: value })), signalPeriod);
-    return { macd, signal };
-}
-
 // BIG ROCK 2//
 export function calculateCompositeRating(data) {
 
