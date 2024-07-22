@@ -27,7 +27,6 @@ async function getStockData(ticker) {
 
     try {
         stockData.quoteSummary = await yahooFinance.quoteSummary(ticker, queryOptions, { validateResult: false });
-        console.log(JSON.parse(JSON.stringify(stockData)))
     } catch (error) {
         console.error(`Error fetching quote summary for ticker: ${ticker}`, error);
         stockData.quoteSummaryError = error.message;
@@ -101,10 +100,15 @@ async function getStockData(ticker) {
         const chartDataNASDAQ = await yahooFinance.chart('^IXIC', { period1, period2, interval: '1d' });
         stockData.chartDataSP500 = chartDataSP500;
         stockData.chartDataNASDAQ = chartDataNASDAQ;
+        stockData.chartDataSP500 = chartDataSP500;
+        stockData.chartDataNASDAQ = chartDataNASDAQ;
     } catch (error) {
         console.error('Error fetching chart data:', error);
         stockData.chartDataError = error.message;
     }
+
+    // Assurez-vous que financialData est inclus dans stockData
+    stockData.financialData = stockData.quoteSummary.financialData || {};
 
     return stockData;
 }
@@ -115,17 +119,30 @@ function calculateChecklist(stockData) {
         averageDailyVolume: 400000,
     };
 
-    // Necessary data
-    const summaryDetail = stockData.quoteSummary.summaryDetail || {};
-    const price = stockData.price || {};
-    const financialData = stockData.quoteSummary.financialData || {};
-    const earnings = stockData.earnings || {};
-    const fundOwnership = stockData.fundOwnership || {};
+    // Vérifications des données
+    const summaryDetail = stockData.quoteSummary?.summaryDetail || {};
+    const price = stockData.quoteSummary?.price || {};
+    const financialData = stockData.quoteSummary?.financialData || {};
+    const earnings = stockData.quoteSummary?.earnings || {};
+    const fundOwnership = stockData.quoteSummary?.fundOwnership || {};
 
-    const returnOnEquity = financialData.returnOnEquity ? `${(financialData.returnOnEquity * 100).toFixed(2)} %` : null;
-    const returnOnEquityBool = financialData.returnOnEquity ? financialData.returnOnEquity * 100 >= 17 : false;
-    const quarterlyData = earnings.financialsChart ? earnings.financialsChart.quarterly : [];
+    // Vérification de returnOnEquity
+    const returnOnEquity = financialData.returnOnEquity !== undefined 
+        ? `${(financialData.returnOnEquity * 100).toFixed(2)} %` 
+        : null;
+    const returnOnEquityBool = financialData.returnOnEquity !== undefined 
+        ? financialData.returnOnEquity * 100 >= 17 
+        : false;
+    
+    // Vérification de quarterlyData
+    const quarterlyData = earnings.financialsChart 
+        ? earnings.financialsChart.quarterly 
+        : [];
+    
+    // Vérification de ownershipList
     const ownershipList = fundOwnership.ownershipList || [];
+    
+    // Vérification de currentPrice
     const currentPrice = price.regularMarketPrice || 0;
 
     const salesGrowth = calculations.calculateSalesGrowth(quarterlyData);
@@ -144,8 +161,12 @@ function calculateChecklist(stockData) {
         weight: 5
     };
     const averageDailyVolume = {
-        value: summaryDetail.averageVolume ? `${summaryDetail.averageVolume.toLocaleString(undefined)} shares` : 'N/A',
-        bool: summaryDetail.averageVolume ? summaryDetail.averageVolume >= benchmarks.averageDailyVolume : false,
+        value: summaryDetail.averageVolume !== undefined 
+            ? `${summaryDetail.averageVolume.toLocaleString(undefined)} shares` 
+            : 'N/A',
+        bool: summaryDetail.averageVolume !== undefined 
+            ? summaryDetail.averageVolume >= benchmarks.averageDailyVolume 
+            : false,
         weight: 5
     };
 
@@ -155,7 +176,7 @@ function calculateChecklist(stockData) {
         roeResult: roe, 
         relativeStrengthRatingResult: relativeStrengthRating, 
         acceleratingGrowthResult: acceleratingEarningsGrowth,
-        percentOffHighResult: (stockData.percentOffHigh / 100)
+        percentOffHighResult: stockData.percentOffHigh ? (stockData.percentOffHigh / 100) : null
     };
     
     const results = {

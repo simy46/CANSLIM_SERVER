@@ -521,7 +521,7 @@ function calculateIdealBuyPoint(historicalPrices) {
     return idealBuyPoint;
 }
 
-export function calculateBreakout(stockData) { // QUALITATIVE
+export function calculateBreakout(stockData) {
     if (!stockData.historicalPrices || stockData.historicalPrices.length < 2) {
         return { value: null, weight: 8 };
     }
@@ -530,7 +530,8 @@ export function calculateBreakout(stockData) { // QUALITATIVE
     const recentPrice = historicalPrices[historicalPrices.length - 1].close;
     const previousPrice = historicalPrices[historicalPrices.length - 2].close;
     const recentVolume = historicalPrices[historicalPrices.length - 1].volume;
-    const averageVolume = stockData.summaryDetail.averageVolume;
+
+    const averageVolume = stockData.summaryDetail?.averageVolume || 0;
 
     // Simple check for price breakout
     const priceBreakout = recentPrice > previousPrice;
@@ -543,6 +544,7 @@ export function calculateBreakout(stockData) { // QUALITATIVE
 
     return { value: value, bool: isBreakout, weight: 8 };
 }
+
 
 export function calculateRelativeStrengthLineInNewHigh(stockData) {
     if (!stockData.historicalPrices || !stockData.sp500HistoricalPrices) {
