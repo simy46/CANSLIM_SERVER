@@ -27,6 +27,7 @@ async function getStockData(ticker) {
 
     try {
         stockData.quoteSummary = await yahooFinance.quoteSummary(ticker, queryOptions, { validateResult: false });
+        console.log(JSON.parse(JSON.stringify(stockData)))
     } catch (error) {
         console.error(`Error fetching quote summary for ticker: ${ticker}`, error);
         stockData.quoteSummaryError = error.message;
@@ -105,7 +106,6 @@ async function getStockData(ticker) {
         stockData.chartDataError = error.message;
     }
 
-    console.log(JSON.parse(JSON.stringify(stockData)))
     return stockData;
 }
 
@@ -116,7 +116,7 @@ function calculateChecklist(stockData) {
     };
 
     // Necessary data
-    const summaryDetail = stockData.summaryDetail || {};
+    const summaryDetail = stockData.quoteSummary.summaryDetail || {};
     const price = stockData.price || {};
     const financialData = stockData.financialData || {};
     const earnings = stockData.earnings || {};
