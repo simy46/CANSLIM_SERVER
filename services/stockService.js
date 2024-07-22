@@ -124,7 +124,7 @@ async function fetchAndProcessNews(ticker, newsCount) {
 export async function getStockDetails(ticker) {
     const data = {};
 
-    // Quote Summary //
+    // Quote Summary
     try {
         const module = {
             modules: [
@@ -148,9 +148,8 @@ export async function getStockDetails(ticker) {
         console.error(`Error fetching quote summary data for ticker: ${ticker}`, error);
         data.quoteSummary = null;
     }
-    
 
-    // Options //
+    // Options
     try {
         const options = await yahooFinance.options(ticker);
         data.options = options;
@@ -159,7 +158,7 @@ export async function getStockDetails(ticker) {
         data.options = null;
     }
 
-    // Profile //
+    // Profile
     try {
         const profile = await yahooFinance.quote(ticker);
         data.profile = profile;
@@ -168,7 +167,7 @@ export async function getStockDetails(ticker) {
         data.profile = null;
     }
 
-    // Recommendations Symbols //
+    // Recommendations Symbols
     try {
         const recommendations = await yahooFinance.recommendationsBySymbol(ticker);
         data.recommendations = recommendations;
@@ -177,7 +176,7 @@ export async function getStockDetails(ticker) {
         data.recommendations = null;
     }
 
-    // News //
+    // News
     try {
         const news = await getStockNews(ticker);
         data.news = news;
@@ -186,16 +185,20 @@ export async function getStockDetails(ticker) {
         data.news = null;
     }
 
-    // Chart //
+    // Chart
     try {
-        const chart = await yahooFinance.chart(ticker, { interval: '1d', range: '1mo' });
+        const period1 = new Date();
+        period1.setMonth(period1.getMonth() - 1); // 1 month ago
+        const period2 = new Date(); // today
+
+        const chart = await yahooFinance.chart(ticker, { period1: period1.toISOString(), period2: period2.toISOString(), interval: '1d' });
         data.chart = chart;
     } catch (error) {
         console.error(`Error fetching chart data for ticker: ${ticker}`, error);
         data.chart = null;
     }
 
-    // Insights //
+    // Insights
     try {
         const insights = await yahooFinance.insights(ticker);
         data.insights = insights;
