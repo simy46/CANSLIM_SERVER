@@ -118,7 +118,7 @@ function calculateChecklist(stockData) {
     // Necessary data
     const summaryDetail = stockData.quoteSummary.summaryDetail || {};
     const price = stockData.price || {};
-    const financialData = stockData.financialData || {};
+    const financialData = stockData.quoteSummary.financialData || {};
     const earnings = stockData.earnings || {};
     const fundOwnership = stockData.fundOwnership || {};
 
