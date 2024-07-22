@@ -105,6 +105,7 @@ async function getStockData(ticker) {
         stockData.chartDataError = error.message;
     }
 
+    console.log(JSON.parse(JSON.stringify(stockData)))
     return stockData;
 }
 
@@ -117,30 +118,34 @@ function calculateChecklist(stockData) {
     // Necessary data
     const summaryDetail = stockData.summaryDetail || {};
     const price = stockData.price || {};
-    const returnOnEquity = stockData.financialData.returnOnEquity ? `${(stockData.financialData.returnOnEquity * 100).toFixed(2)} %` : null;
-    const returnOnEquityBool = stockData.financialData.returnOnEquity ? stockData.financialData.returnOnEquity * 100 >= 17 : '';
-    const quarterlyData = stockData.earnings.financialsChart.quarterly;
-    const ownershipList = stockData.fundOwnership.ownershipList;
-    const currentPrice = price.regularMarketPrice;
+    const financialData = stockData.financialData || {};
+    const earnings = stockData.earnings || {};
+    const fundOwnership = stockData.fundOwnership || {};
+
+    const returnOnEquity = financialData.returnOnEquity ? `${(financialData.returnOnEquity * 100).toFixed(2)} %` : null;
+    const returnOnEquityBool = financialData.returnOnEquity ? financialData.returnOnEquity * 100 >= 17 : false;
+    const quarterlyData = earnings.financialsChart ? earnings.financialsChart.quarterly : [];
+    const ownershipList = fundOwnership.ownershipList || [];
+    const currentPrice = price.regularMarketPrice || 0;
 
     const salesGrowth = calculations.calculateSalesGrowth(quarterlyData);
     const epsGrowth = calculations.calculateRecentEpsGrowth(stockData);
     const relativeStrengthRating = calculations.calculateRelativeStrengthRating(stockData);
     const acceleratingEarningsGrowth = calculations.calculateAcceleratingEarningsGrowthFromEarningsData(quarterlyData);
     
-    const roe = { // Check //
+    const roe = {
         value: returnOnEquity,
         bool: returnOnEquityBool,
         weight: 6
     };
-    const currentSharePrice = {    // Check //
+    const currentSharePrice = {
         value: `$${currentPrice.toFixed(2)}`,
         bool: currentPrice >= benchmarks.currentSharePrice, 
         weight: 5
     };
-    const averageDailyVolume = { // Check //
-        value: `${summaryDetail.averageVolume.toLocaleString(undefined)} shares`,
-        bool: summaryDetail.averageVolume >= benchmarks.averageDailyVolume,
+    const averageDailyVolume = {
+        value: summaryDetail.averageVolume ? `${summaryDetail.averageVolume.toLocaleString(undefined)} shares` : 'N/A',
+        bool: summaryDetail.averageVolume ? summaryDetail.averageVolume >= benchmarks.averageDailyVolume : false,
         weight: 5
     };
 
@@ -151,43 +156,34 @@ function calculateChecklist(stockData) {
         relativeStrengthRatingResult: relativeStrengthRating, 
         acceleratingGrowthResult: acceleratingEarningsGrowth,
         percentOffHighResult: (stockData.percentOffHigh / 100)
-    }
+    };
     
     const results = {
         stockInfo: stockData.stockInfo,
-                            // MARKET TREND //
-        marketTrend:  calculations.determineMarketTrend(stockData.sp500HistoricalPrices, stockData.nasdaqHistoricalPrices),
+        marketTrend: calculations.determineMarketTrend(stockData.sp500HistoricalPrices, stockData.nasdaqHistoricalPrices),
 
-                // Big Rock 1 // manque 3 attributs //
+        // Big Rock 1
+        compositeRatingResult: calculations.calculateCompositeRating(data),
+        epsRatingResult: calculations.calculateEpsRating(stockData),
+        epsGrowth: epsGrowth,
+        acceleratingEarningsGrowth: acceleratingEarningsGrowth,
+        annualEpsGrowth: calculations.calculateAverageAnnualEpsGrowth(stockData),
+        salesGrowth: salesGrowth,
+        roe: roe,
+        smrRating: calculations.calculateSMRRating(stockData),
 
-        compositeRatingResult: calculations.calculateCompositeRating(data),                             // Composite Rating of 95 or higher
-        epsRatingResult: calculations.calculateEpsRating(stockData),                                    // EPS Rating of 80 or higher
-        epsGrowth: epsGrowth,                                                                           // EPS growth 25% or higher in recent quarters
-        acceleratingEarningsGrowth: acceleratingEarningsGrowth,                                         // Accelerating earnings growth
-        annualEpsGrowth: calculations.calculateAverageAnnualEpsGrowth(stockData),                       // Average Annual EPS growth 25% or more over last 3 years
-        salesGrowth: salesGrowth,                                                                       // Sales growth 20%-25% or higher in most recent quarter
-        roe: roe,                                                                                       // Return on equity (ROE) of 17% or higher
-        smrRating: calculations.calculateSMRRating(stockData),                                          // SMR Rating (Sales + Margins + Return on Equity) of A or B
-
-        // 3 more //
-
-
-                // Big Rock 2 //
-
+        // Big Rock 2
         increaseInFundsOwnership: calculations.calculateIncreaseInFundsOwnership(ownershipList),
-        accumulationDistributionRating: calculations.calculateADRating(stockData.historicalPrices),     // Accumulation/Distribution Rating of A, B or C
-        relativeStrengthRating: relativeStrengthRating,                                                 // Relative Strength Rating of 80 or higher
-        currentSharePrice: currentSharePrice,                                                           // Share price above $15
-        averageDailyVolume: averageDailyVolume,                                                         // Average daily volume of 400,000 shares or more 
+        accumulationDistributionRating: calculations.calculateADRating(stockData.historicalPrices),
+        relativeStrengthRating: relativeStrengthRating,
+        currentSharePrice: currentSharePrice,
+        averageDailyVolume: averageDailyVolume,
 
-
-                // Big Rock 3 //
-
-        breakingOutOfSoundBase: calculations.calculateBreakout(stockData),                              // Breaking out of sound base or alternative buy point
-        volumeAboveAverage: calculations.calculateVolumeAboveAverage(summaryDetail),                    // Volume at least 40% to 50% above average on breakout
-        rsLine: calculations.calculateRelativeStrengthLineInNewHigh(stockData),                         // Relative strength line in new high ground
-        withinBuyPoint: calculations.calculateWithinBuyPoint(currentPrice, stockData.historicalPrices), // Within 5% of ideal buy point
-
+        // Big Rock 3
+        breakingOutOfSoundBase: calculations.calculateBreakout(stockData),
+        volumeAboveAverage: calculations.calculateVolumeAboveAverage(summaryDetail),
+        rsLine: calculations.calculateRelativeStrengthLineInNewHigh(stockData),
+        withinBuyPoint: calculations.calculateWithinBuyPoint(currentPrice, stockData.historicalPrices),
     };
 
     return results;
