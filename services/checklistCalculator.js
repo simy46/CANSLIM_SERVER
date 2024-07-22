@@ -23,59 +23,88 @@ async function getStockData(ticker) {
         ]
     };
 
+    const stockData = {};
+
     try {
-        const stockData = await yahooFinance.quoteSummary(ticker, queryOptions, { validateResult: false });
+        stockData.quoteSummary = await yahooFinance.quoteSummary(ticker, queryOptions, { validateResult: false });
+    } catch (error) {
+        console.error(`Error fetching quote summary for ticker: ${ticker}`, error);
+        stockData.quoteSummaryError = error.message;
+    }
 
-        const stockInfo = await yahooFinance.quote(ticker, { fields: [ "symbol", "displayName", "regularMarketPrice", "fiftyTwoWeekHigh", "epsTrailingTwelveMonths", "epsCurrentYear", "sharesOutstanding"] });
+    try {
+        stockData.stockInfo = await yahooFinance.quote(ticker, { fields: ["regularMarketPrice", "fiftyTwoWeekHigh", "epsTrailingTwelveMonths", "epsCurrentYear", "sharesOutstanding"] });
+        const { regularMarketPrice, fiftyTwoWeekHigh } = stockData.stockInfo;
+        stockData.percentOffHigh = ((1 - (regularMarketPrice / fiftyTwoWeekHigh)) * 100).toFixed(2);
+    } catch (error) {
+        console.error(`Error fetching stock info for ticker: ${ticker}`, error);
+        stockData.stockInfoError = error.message;
+    }
 
-        stockData.stockInfo = stockInfo;
-
-        // Calculate percentOffHigh
-        const currentPrice = stockInfo.regularMarketPrice;
-        const high52Week = stockInfo.fiftyTwoWeekHigh;
-        const percentOffHigh = ((1 - (currentPrice / high52Week)) * 100).toFixed(2);
-        stockData.percentOffHigh = percentOffHigh;
-
-        // Historical prices and other historical data can remain the same
-        const historicalPrices = await yahooFinance.historical(ticker, {
+    try {
+        stockData.historicalPrices = await yahooFinance.historical(ticker, {
             period1: '2010-01-01', // Can be modified
             period2: new Date().toISOString().split('T')[0],
             interval: '1mo',
         });
+    } catch (error) {
+        console.error(`Error fetching historical prices for ticker: ${ticker}`, error);
+        stockData.historicalPricesError = error.message;
+    }
 
-        stockData.historicalPrices = historicalPrices;
-
-        const historicalDividends = await yahooFinance.historical(ticker, {
+    try {
+        stockData.historicalDividends = await yahooFinance.historical(ticker, {
             period1: '2010-01-01', // Can be modified
             period2: new Date().toISOString().split('T')[0],
             interval: '1mo',
             events: 'dividends'
         });
+    } catch (error) {
+        console.error(`Error fetching historical dividends for ticker: ${ticker}`, error);
+        stockData.historicalDividendsError = error.message;
+    }
 
-        stockData.historicalDividends = historicalDividends;
-
-        const historicalEarnings = stockData.earnings.financialsChart.yearly.map(entry => ({
+    if (stockData.quoteSummary && stockData.quoteSummary.earnings && stockData.quoteSummary.earnings.financialsChart) {
+        stockData.historicalEarnings = stockData.quoteSummary.earnings.financialsChart.yearly.map(entry => ({
             date: entry.date,
             epsActual: entry.earnings
         }));
+    }
 
-        stockData.historicalEarnings = historicalEarnings;
-
-        const sp500HistoricalPrices = await yahooFinance.historical('^GSPC', {
+    try {
+        stockData.sp500HistoricalPrices = await yahooFinance.historical('^GSPC', {
             period1: '2010-01-01', // Can be modified
             period2: new Date().toISOString().split('T')[0],
             interval: '1mo'
         });
-
-        stockData.sp500HistoricalPrices = sp500HistoricalPrices;
-
-        return stockData;
     } catch (error) {
-        console.error(`Error fetching data for ticker: ${ticker}`, error);
-        throw error;
+        console.error('Error fetching historical prices for S&P 500:', error);
+        stockData.sp500HistoricalPricesError = error.message;
     }
-}
 
+    try {
+        stockData.nasdaqHistoricalPrices = await yahooFinance.historical('^IXIC', {
+            period1: '2010-01-01', // Can be modified
+            period2: new Date().toISOString().split('T')[0],
+            interval: '1mo'
+        });
+    } catch (error) {
+        console.error('Error fetching historical prices for NASDAQ:', error);
+        stockData.nasdaqHistoricalPricesError = error.message;
+    }
+
+    try {
+        const chartDataSP500 = await yahooFinance.chart('^GSPC', { range: '6mo', interval: '1d' });
+        const chartDataNASDAQ = await yahooFinance.chart('^IXIC', { range: '6mo', interval: '1d' });
+        stockData.chartDataSP500 = chartDataSP500;
+        stockData.chartDataNASDAQ = chartDataNASDAQ;
+    } catch (error) {
+        console.error('Error fetching chart data:', error);
+        stockData.chartDataError = error.message;
+    }
+
+    return stockData;
+}
 
 function calculateChecklist(stockData) {
     const benchmarks = {
@@ -105,7 +134,7 @@ function calculateChecklist(stockData) {
     const currentSharePrice = {    // Check //
         value: `$${currentPrice.toFixed(2)}`,
         bool: currentPrice >= benchmarks.currentSharePrice, 
-        weight: 6
+        weight: 5
     };
     const averageDailyVolume = { // Check //
         value: `${summaryDetail.averageVolume.toLocaleString(undefined)} shares`,
@@ -124,6 +153,8 @@ function calculateChecklist(stockData) {
     
     const results = {
         stockInfo: stockData.stockInfo,
+                            // MARKET TREND //
+        marketTrend:  calculations.determineMarketTrend(stockData.sp500HistoricalPrices, stockData.nasdaqHistoricalPrices),
 
                 // Big Rock 1 // manque 3 attributs //
 

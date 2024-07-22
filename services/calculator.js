@@ -1,3 +1,99 @@
+// MARKET TREND //
+export function determineMarketTrend(sp500HistoricalPrices, nasdaqHistoricalPrices) {
+    const sp500EMA20 = calculateEMA(sp500HistoricalPrices, 20).slice(-1)[0];
+    const sp500EMA50 = calculateEMA(sp500HistoricalPrices, 50).slice(-1)[0];
+    const sp500EMA200 = calculateEMA(sp500HistoricalPrices, 200).slice(-1)[0];
+
+    const nasdaqEMA20 = calculateEMA(nasdaqHistoricalPrices, 20).slice(-1)[0];
+    const nasdaqEMA50 = calculateEMA(nasdaqHistoricalPrices, 50).slice(-1)[0];
+    const nasdaqEMA200 = calculateEMA(nasdaqHistoricalPrices, 200).slice(-1)[0];
+
+    const sp500RSI = calculateRSI(sp500HistoricalPrices).slice(-1)[0];
+    const nasdaqRSI = calculateRSI(nasdaqHistoricalPrices).slice(-1)[0];
+
+    const { macd: sp500MACD, signal: sp500MACDSignal } = calculateMACD(sp500HistoricalPrices);
+    const { macd: nasdaqMACD, signal: nasdaqMACDSignal } = calculateMACD(nasdaqHistoricalPrices);
+
+    const sp500MACDCurrent = sp500MACD.slice(-1)[0];
+    const sp500MACDSignalCurrent = sp500MACDSignal.slice(-1)[0];
+
+    const nasdaqMACDCurrent = nasdaqMACD.slice(-1)[0];
+    const nasdaqMACDSignalCurrent = nasdaqMACDSignal.slice(-1)[0];
+
+    let trendSP500 = 'Correction';
+    let trendNasdaq = 'Correction';
+
+    if (sp500EMA20 > sp500EMA50 && sp500EMA20 > sp500EMA200 && sp500RSI < 70 && sp500MACDCurrent > sp500MACDSignalCurrent) {
+        trendSP500 = 'Uptrend';
+    } else if (sp500EMA20 < sp500EMA50 && sp500EMA20 < sp500EMA200 && sp500RSI > 30 && sp500MACDCurrent < sp500MACDSignalCurrent) {
+        trendSP500 = 'Downtrend';
+    }
+
+    if (nasdaqEMA20 > nasdaqEMA50 && nasdaqEMA20 > nasdaqEMA200 && nasdaqRSI < 70 && nasdaqMACDCurrent > nasdaqMACDSignalCurrent) {
+        trendNasdaq = 'Uptrend';
+    } else if (nasdaqEMA20 < nasdaqEMA50 && nasdaqEMA20 < nasdaqEMA200 && nasdaqRSI > 30 && nasdaqMACDCurrent < nasdaqMACDSignalCurrent) {
+        trendNasdaq = 'Downtrend';
+    }
+
+    let finalTrend = 'Correction';
+    if (trendSP500 === 'Uptrend' && trendNasdaq === 'Uptrend') {
+        finalTrend = 'Uptrend';
+    } else if (trendSP500 === 'Downtrend' && trendNasdaq === 'Downtrend') {
+        finalTrend = 'Downtrend';
+    }
+
+    return {
+        value: finalTrend,
+        bool: finalTrend !== 'Correction',
+        weight: 10
+    };
+}
+
+function calculateEMA(data, period) {
+    const prices = data.map(entry => entry.close);
+    const k = 2 / (period + 1);
+    let ema = [prices[0]];
+    for (let i = 1; i < prices.length; i++) {
+        ema.push(prices[i] * k + ema[i - 1] * (1 - k));
+    }
+    return ema;
+}
+
+function calculateRSI(data, period = 14) {
+    const prices = data.map(entry => entry.close);
+    let gains = 0, losses = 0;
+    for (let i = 1; i <= period; i++) {
+        const change = prices[i] - prices[i - 1];
+        if (change > 0) gains += change;
+        else losses -= change;
+    }
+    let avgGain = gains / period;
+    let avgLoss = losses / period;
+    let rsi = [100 - (100 / (1 + avgGain / avgLoss))];
+
+    for (let i = period + 1; i < prices.length; i++) {
+        const change = prices[i] - prices[i - 1];
+        if (change > 0) {
+            avgGain = ((avgGain * (period - 1)) + change) / period;
+            avgLoss = (avgLoss * (period - 1)) / period;
+        } else {
+            avgGain = (avgGain * (period - 1)) / period;
+            avgLoss = ((avgLoss * (period - 1)) - change) / period;
+        }
+        rsi.push(100 - (100 / (1 + avgGain / avgLoss)));
+    }
+    return rsi;
+}
+
+function calculateMACD(data, fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) {
+    const emaFast = calculateEMA(data, fastPeriod);
+    const emaSlow = calculateEMA(data, slowPeriod);
+    const macd = emaFast.map((value, index) => value - emaSlow[index]);
+    const signal = calculateEMA(macd.map(value => ({ close: value })), signalPeriod);
+    return { macd, signal };
+}
+
+// BIG ROCK 2//
 export function calculateCompositeRating(data) {
 
     if (!data.epsGrowthResult.value || !data.salesGrowthResult.value || 
@@ -260,7 +356,7 @@ export function calculateAcceleratingEarningsGrowthFromEarningsData(earningsData
     return {
         value: isAccelerating ? "Yes" : "No",
         bool: isAccelerating,
-        weight: 5
+        weight: 6
     };
 }
 
@@ -408,7 +504,7 @@ export function calculateWithinBuyPoint(currentPrice, historicalPrices) {
     return {
         value: value,
         bool: isWithinBuyPoint,
-        weight: 5
+        weight: 6
     };
 }
 

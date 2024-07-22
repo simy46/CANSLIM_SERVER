@@ -16,7 +16,6 @@ export async function getInitialStocks() {
     const validation = { validateResult: false }
     const results = await yahooFinance.quote(stocks, fields, validation);
     
-    console.log(JSON.parse(JSON.stringify(results)))
     return results;
 }
 
@@ -162,7 +161,7 @@ export async function getStockDetails(ticker) {
 
     // Profile //
     try {
-        const profile = await yahooFinance.profile(ticker);
+        const profile = await yahooFinance.quote(ticker);
         data.profile = profile;
     } catch (error) {
         console.error(`Error fetching profile data for ticker: ${ticker}`, error);
@@ -205,13 +204,21 @@ export async function getStockDetails(ticker) {
         data.insights = null;
     }
 
-    console.log(data);
     return data;
 }
 
 
+// Stock news
 async function getStockNews(ticker) {
     return await fetchAndProcessNews(ticker, 20);
 }
+
+// Chart
+async function getChartData(symbol, options) {
+    return await yahooFinance.chart(symbol, options);
+}
+
+
+
 
 
