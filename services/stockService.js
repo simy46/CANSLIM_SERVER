@@ -124,7 +124,7 @@ async function fetchAndProcessNews(ticker, newsCount) {
 export async function getStockDetails(ticker) {
     const data = {};
 
-    // Quote Summary
+    // Quote Summary & Profile
     try {
         const module = {
             modules: [
@@ -139,11 +139,19 @@ export async function getStockDetails(ticker) {
                 'majorDirectHolders', 
                 'majorHoldersBreakdown', 
                 'netSharePurchaseActivity',
-                'recommendationTrend'
+                'recommendationTrend',
+                'assetProfile',
+                'summaryProfile',
+                'fundProfile'
             ]
         };
         const stockInfo = await yahooFinance.quoteSummary(ticker, module);
         data.quoteSummary = stockInfo;
+        data.profile = {
+            assetProfile: stockInfo.assetProfile,
+            fundProfile: stockInfo.fundProfile,
+            summaryProfile: stockInfo.summaryProfile
+        };
     } catch (error) {
         console.error(`Error fetching quote summary data for ticker: ${ticker}`, error);
         data.quoteSummary = null;
@@ -156,15 +164,6 @@ export async function getStockDetails(ticker) {
     } catch (error) {
         console.error(`Error fetching options data for ticker: ${ticker}`, error);
         data.options = null;
-    }
-
-    // Profile
-    try {
-        const profile = await yahooFinance.quote(ticker);
-        data.profile = profile;
-    } catch (error) {
-        console.error(`Error fetching profile data for ticker: ${ticker}`, error);
-        data.profile = null;
     }
 
     // Recommendations Symbols
