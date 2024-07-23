@@ -147,11 +147,6 @@ export async function getStockDetails(ticker) {
         };
         const stockInfo = await yahooFinance.quoteSummary(ticker, module);
         data.quoteSummary = stockInfo;
-        data.profile = {
-            assetProfile: stockInfo.assetProfile,
-            fundProfile: stockInfo.fundProfile,
-            summaryProfile: stockInfo.summaryProfile
-        };
     } catch (error) {
         console.error(`Error fetching quote summary data for ticker: ${ticker}`, error);
         data.quoteSummary = null;
