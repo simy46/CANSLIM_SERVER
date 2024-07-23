@@ -64,8 +64,8 @@ export function determineMarketTrend(sp500HistoricalPrices, nasdaqHistoricalPric
     const nasdaqMACDCurrent = nasdaqMACD.slice(-1)[0];
     const nasdaqMACDSignalCurrent = nasdaqMACDSignal.slice(-1)[0];
 
-    let trendSP500 = 'Correction';
-    let trendNasdaq = 'Correction';
+    let trendSP500 = 'in Correction';
+    let trendNasdaq = 'in Correction';
 
     if (sp500EMA20 > sp500EMA50 && sp500EMA20 > sp500EMA200 && sp500RSI < 70 && sp500MACDCurrent > sp500MACDSignalCurrent) {
         trendSP500 = 'Uptrend';
@@ -79,7 +79,7 @@ export function determineMarketTrend(sp500HistoricalPrices, nasdaqHistoricalPric
         trendNasdaq = 'Downtrend';
     }
 
-    let finalTrend = 'Correction';
+    let finalTrend = 'in Correction';
     if (trendSP500 === 'Uptrend' && trendNasdaq === 'Uptrend') {
         finalTrend = 'Uptrend';
     } else if (trendSP500 === 'Downtrend' && trendNasdaq === 'Downtrend') {
@@ -88,7 +88,8 @@ export function determineMarketTrend(sp500HistoricalPrices, nasdaqHistoricalPric
 
     return {
         value: finalTrend,
-        bool: finalTrend !== 'Correction',
+        bool: finalTrend !== 'Downtrend',
+        isInCorrection: finalTrend !== 'in Correction',
         weight: 10
     };
 }
