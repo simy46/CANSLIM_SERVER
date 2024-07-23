@@ -89,7 +89,7 @@ export function determineMarketTrend(sp500HistoricalPrices, nasdaqHistoricalPric
     return {
         value: finalTrend,
         bool: finalTrend !== 'Downtrend',
-        isInCorrection: finalTrend !== 'in Correction',
+        isInCorrection: finalTrend === 'in Correction',
         weight: 10
     };
 }
