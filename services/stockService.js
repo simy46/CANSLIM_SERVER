@@ -1,7 +1,6 @@
 import yahooFinance from 'yahoo-finance2';
 import puppeteer from 'puppeteer';
 
-
 // TRENDING STOCKS //
 export async function getInitialStocks() {
     const stocks = await getTrendingStocks(10);
@@ -213,13 +212,16 @@ async function getStockNews(ticker) {
 }
 
 export async function scrapeDescription(url) {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle2' });
 
-    // Modifier le sélecteur en fonction de la structure de Yahoo Finance
     const description = await page.evaluate(() => {
-        const element = document.querySelector('caas-body p'); // Exemple de sélecteur, peut varier
+        const element = document.querySelector('caas-body p');
         return element ? element.innerText : null;
     });
 
