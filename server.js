@@ -109,6 +109,12 @@ app.post('/api/market-news', async (req, res) => {
 
         const news = await services.getMarketData(tickers);
 
+        // Ajouter la description à chaque article de news
+        for (const article of news.news) {
+            const description = await scrapeDescription(article.link);
+            article.description = description || 'No description available';
+        }
+
         if (news.news.length > 0) {
             res.status(200).json(news);
         } else {
@@ -119,6 +125,7 @@ app.post('/api/market-news', async (req, res) => {
         res.status(500).send('Internal server error');
     }
 });
+
 
 
 app.get('/api/check-stock', async (req, res) => {
