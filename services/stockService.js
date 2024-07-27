@@ -212,7 +212,7 @@ async function getStockNews(ticker) {
     return await fetchAndProcessNews(ticker, 20);
 }
 
-async function scrapeDescription(url) {
+export async function scrapeDescription(url) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle2' });

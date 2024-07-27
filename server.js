@@ -111,7 +111,7 @@ app.post('/api/market-news', async (req, res) => {
 
         // Ajouter la description à chaque article de news
         for (const article of news.news) {
-            const description = await scrapeDescription(article.link);
+            const description = await services.scrapeDescription(article.link);
             article.description = description || 'No description available';
         }
 
