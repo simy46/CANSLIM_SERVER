@@ -192,7 +192,7 @@ function calculateChecklist(stockData) {
         epsRatingResult: calculations.calculateEpsRating(stockData),
         epsGrowth: epsGrowth,
         acceleratingEarningsGrowth: acceleratingEarningsGrowth,
-        annualEpsGrowth: calculations.calculateAverageAnnualEpsGrowth(stockData),
+        annualEpsGrowth: calculations.calculateAverageAnnualEpsGrowth(earnings),
         salesGrowth: salesGrowth,
         roe: roe,
         smrRating: calculations.calculateSMRRating(stockData),
