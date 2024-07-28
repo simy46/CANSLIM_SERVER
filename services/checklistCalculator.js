@@ -181,9 +181,11 @@ function calculateChecklist(stockData) {
     
     const results = {
         stockInfo: stockData.stockInfo,
-        marketTrend: calculations.determineMarketTrend(stockData.sp500HistoricalPrices, stockData.nasdaqHistoricalPrices),
 
         // Big Rock 1
+        marketTrend: calculations.determineMarketTrend(stockData.sp500HistoricalPrices, stockData.nasdaqHistoricalPrices),
+
+        // Big Rock 2
         compositeRatingResult: calculations.calculateCompositeRating(data),
         epsRatingResult: calculations.calculateEpsRating(stockData),
         epsGrowth: epsGrowth,
@@ -193,14 +195,14 @@ function calculateChecklist(stockData) {
         roe: roe,
         smrRating: calculations.calculateSMRRating(stockData),
 
-        // Big Rock 2
+        // Big Rock 3
         increaseInFundsOwnership: calculations.calculateIncreaseInFundsOwnership(ownershipList),
         accumulationDistributionRating: calculations.calculateADRating(stockData.historicalPrices),
         relativeStrengthRating: relativeStrengthRating,
         currentSharePrice: currentSharePrice,
         averageDailyVolume: averageDailyVolume,
 
-        // Big Rock 3
+        // Big Rock 4
         breakingOutOfSoundBase: calculations.calculateBreakout(stockData),
         volumeAboveAverage: calculations.calculateVolumeAboveAverage(summaryDetail),
         rsLine: calculations.calculateRelativeStrengthLineInNewHigh(stockData),

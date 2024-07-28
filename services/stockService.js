@@ -209,13 +209,3 @@ export async function getStockDetails(ticker) {
 async function getStockNews(ticker) {
     return await fetchAndProcessNews(ticker, 20);
 }
-
-// Chart
-async function getChartData(symbol, options) {
-    return await yahooFinance.chart(symbol, options);
-}
-
-
-
-
-

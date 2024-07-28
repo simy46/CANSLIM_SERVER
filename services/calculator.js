@@ -99,6 +99,7 @@ export function calculateCompositeRating(data) {
     if (!data.epsGrowthResult.value || !data.salesGrowthResult.value || 
         !data.roeResult.value || !data.relativeStrengthRatingResult ||
         !data.percentOffHighResult) {
+        console.log('COMPOSITEW NOT ENUF DATA')
         return { value:null, weight: 8 }
     }
 
@@ -210,29 +211,36 @@ export function calculateRecentEpsGrowth(stockData) {
 
 export function calculateAverageAnnualEpsGrowth(stockData) {
     if (!stockData.earnings || !stockData.earnings.financialsChart || !stockData.earnings.financialsChart.yearly) {
-        return { value: null, weight:7 }; // Bad data
+        console.log('BAD DATA:', stockData);
+        return { value: null, weight: 7 }; // Bad data
     }
 
     const yearlyEarnings = stockData.earnings.financialsChart.yearly;
+    console.log('Yearly Earnings:', yearlyEarnings);
 
     // We need at least 4 years of data to calculate growth over the last 3 years
     if (yearlyEarnings.length < 4) {
+        console.log('NOT ENOUGH DATA 1 AVERAGE ANNUAL EPS');
         return { value: null, weight: 7 }; // Not enough data
     }
 
     // Extract EPS values for the last 4 years
     const recentEpsValues = yearlyEarnings.slice(-4).map(entry => entry.earnings);
+    console.log('Recent EPS Values:', recentEpsValues);
 
     // Filter out years with negative EPS
     const filteredEpsValues = recentEpsValues.filter(eps => eps > 0);
+    console.log('Filtered EPS Values:', filteredEpsValues);
 
     // Ensure we still have enough data after filtering
     if (filteredEpsValues.length < 2) {
+        console.log('NOT ENOUGH DATA 2 AVERAGE ANNUAL EPS');
         return { value: null, weight: 7 }; // Not enough valid data
     }
 
     // Validate EPS values
     if (filteredEpsValues.some(eps => eps == null || eps === 0)) {
+        console.log('INVALID DATA AVERAGE ANNUAL EPS');
         return { value: null, weight: 7 }; // Invalid data
     }
 
