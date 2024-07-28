@@ -211,12 +211,11 @@ export function calculateRecentEpsGrowth(stockData) {
 
 export function calculateAverageAnnualEpsGrowth(stockData) {
     if (!stockData.earnings || !stockData.earnings.financialsChart || !stockData.earnings.financialsChart.yearly) {
-        console.log('BAD DATA:', stockData);
+        console.log('BAD DATA:');
         return { value: null, weight: 7 }; // Bad data
     }
 
     const yearlyEarnings = stockData.earnings.financialsChart.yearly;
-    console.log('Yearly Earnings:', yearlyEarnings);
 
     // We need at least 4 years of data to calculate growth over the last 3 years
     if (yearlyEarnings.length < 4) {
@@ -226,11 +225,9 @@ export function calculateAverageAnnualEpsGrowth(stockData) {
 
     // Extract EPS values for the last 4 years
     const recentEpsValues = yearlyEarnings.slice(-4).map(entry => entry.earnings);
-    console.log('Recent EPS Values:', recentEpsValues);
 
     // Filter out years with negative EPS
     const filteredEpsValues = recentEpsValues.filter(eps => eps > 0);
-    console.log('Filtered EPS Values:', filteredEpsValues);
 
     // Ensure we still have enough data after filtering
     if (filteredEpsValues.length < 2) {
