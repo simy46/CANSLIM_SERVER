@@ -211,6 +211,7 @@ export function calculateRecentEpsGrowth(stockData) {
 
 export function calculateAverageAnnualEpsGrowth(stockData) {
     if (!stockData.earnings || !stockData.earnings.financialsChart || !stockData.earnings.financialsChart.yearly) {
+        console.log(stockData.earnings)
         console.log('BAD DATA:');
         return { value: null, weight: 7 }; // Bad data
     }
