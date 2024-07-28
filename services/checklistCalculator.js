@@ -27,6 +27,7 @@ async function getStockData(ticker) {
 
     try {
         stockData.quoteSummary = await yahooFinance.quoteSummary(ticker, queryOptions, { validateResult: false });
+        console.log(`EARNING : ${stockData.quoteSummary.earnings}`)
     } catch (error) {
         console.error(`Error fetching quote summary for ticker: ${ticker}`, error);
         stockData.quoteSummaryError = error.message;
