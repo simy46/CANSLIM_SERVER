@@ -168,13 +168,13 @@ function approximateEpsRating(recentGrowth, annualGrowth) {
     return { value: `${epsRating.toFixed(2)} %`, bool: epsRating >= 80, weight: 8 }; // EPS Rating of 80 or higher
 }
 
-export function calculateRecentEpsGrowth(stockData) {
+export function calculateRecentEpsGrowth(earnings) {
     // Validate the presence of necessary data
-    if (!stockData.earnings || !stockData.earnings.earningsChart || !stockData.earnings.earningsChart.quarterly) {
+    if (!earnings || !earnings.earningsChart || !earnings.earningsChart.quarterly) {
         return { value: null, weight: 9 }; // Bad data
     }
 
-    const quarterlyEarnings = stockData.earnings.earningsChart.quarterly;
+    const quarterlyEarnings = earnings.earningsChart.quarterly;
 
     // Ensure there are enough data points (at least 3 quarters)
     if (quarterlyEarnings.length < 4) {
