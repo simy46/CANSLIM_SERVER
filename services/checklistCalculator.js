@@ -27,8 +27,6 @@ async function getStockData(ticker) {
 
     try {
         stockData.quoteSummary = await yahooFinance.quoteSummary(ticker, queryOptions, { validateResult: false });
-        console.log(`EARNING : ${stockData.quoteSummary.earnings}`)
-        console.log(`QUOTE SUMMARY AS A WHOLE : ${stockData.quoteSummary}`)
     } catch (error) {
         console.error(`Error fetching quote summary for ticker: ${ticker}`, error);
         stockData.quoteSummaryError = error.message;
@@ -189,7 +187,7 @@ function calculateChecklist(stockData) {
 
         // Big Rock 2
         compositeRatingResult: calculations.calculateCompositeRating(data),
-        epsRatingResult: calculations.calculateEpsRating(stockData),
+        epsRatingResult: calculations.calculateEpsRating(earnings),
         epsGrowth: epsGrowth,
         acceleratingEarningsGrowth: acceleratingEarningsGrowth,
         annualEpsGrowth: calculations.calculateAverageAnnualEpsGrowth(earnings),

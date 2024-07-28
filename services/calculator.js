@@ -143,9 +143,9 @@ export function calculateCompositeRating(data) {
     return { value: value, bool: bool, weight: 8 };
 }
 
-export function calculateEpsRating(stockData) {
-    const recentEpsGrowth = calculateRecentEpsGrowth(stockData);
-    const annualEpsGrowth = calculateAverageAnnualEpsGrowth(stockData);   
+export function calculateEpsRating(earnings) {
+    const recentEpsGrowth = calculateRecentEpsGrowth(earnings);
+    const annualEpsGrowth = calculateAverageAnnualEpsGrowth(earnings);   
 
     const epsRatingResult = approximateEpsRating(recentEpsGrowth, annualEpsGrowth);
     return epsRatingResult;
