@@ -33,7 +33,7 @@ async function getStockData(ticker) {
     }
 
     try {
-        stockData.stockInfo = await yahooFinance.quote(ticker, { fields: ["regularMarketPrice", "fiftyTwoWeekHigh", "fiftyTwoWeekLow", "epsTrailingTwelveMonths", "epsCurrentYear", "sharesOutstanding"] });
+        stockData.stockInfo = await yahooFinance.quote(ticker, { fields: ["regularMarketPrice", "fiftyTwoWeekHigh", "trailingAnnualDividendYield", "fiftyTwoWeekLow", "epsTrailingTwelveMonths", "epsCurrentYear", "sharesOutstanding"] });
         const { regularMarketPrice, fiftyTwoWeekHigh } = stockData.stockInfo;
         stockData.percentOffHigh = ((1 - (regularMarketPrice / fiftyTwoWeekHigh)) * 100).toFixed(2);
     } catch (error) {
