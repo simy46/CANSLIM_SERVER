@@ -185,7 +185,7 @@ export async function getStockDetails(ticker) {
         period1.setFullYear(period1.getFullYear() - 10); // 10 years ago
         const period2 = new Date(); // current date
 
-        const chart = await yahooFinance.chart(ticker, { period1: period1.toISOString(), period2: period2.toISOString(), interval: '1d' });
+        const chart = await yahooFinance.chart(ticker, { period1: period1.toISOString(), period2: period2.toISOString(), interval: '15m' });
         data.chart = chart;
     } catch (error) {
         console.error(`Error fetching chart data for ticker: ${ticker}`, error);
