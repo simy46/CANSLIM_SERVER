@@ -182,11 +182,17 @@ export async function getStockDetails(ticker) {
     // Chart
     try {
         const period1 = new Date();
-        period1.setFullYear(period1.getFullYear() - 10); // 10 years ago
+        period1.setFullYear(period1.getFullYear() - 20); // 10 years ago
         const period2 = new Date(); // current date
+        const period3 = new Date();
+        period3.setDate(period3.getDate() - 59) // 60 days ago
 
-        const chart = await yahooFinance.chart(ticker, { period1: period1.toISOString(), period2: period2.toISOString(), interval: '15m' });
+        const chart = await yahooFinance.chart(ticker, { period1: period1.toISOString(), period2: period2.toISOString(), interval: '1d' });
         data.chart = chart;
+
+        const chart2 = await yahooFinance.chart(ticker, { period1: period3.toISOString(), period2: period2.toISOString(), interval: '15m' });
+        data.chart2 = chart2;
+
     } catch (error) {
         console.error(`Error fetching chart data for ticker: ${ticker}`, error);
         data.chart = null;
