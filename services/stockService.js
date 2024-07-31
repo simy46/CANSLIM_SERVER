@@ -190,8 +190,8 @@ export async function getStockDetails(ticker) {
         const chart = await yahooFinance.chart(ticker, { period1: period1.toISOString(), period2: period2.toISOString(), interval: '1d' });
         data.chart = chart;
 
-        const chart2 = await yahooFinance.chart(ticker, { period1: period3.toISOString(), period2: period2.toISOString(), interval: '15m' });
-        data.chart2 = chart2;
+        //const chart2 = await yahooFinance.chart(ticker, { period1: period3.toISOString(), period2: period2.toISOString(), interval: '15m' });
+        //data.chart2 = chart2;
 
     } catch (error) {
         console.error(`Error fetching chart data for ticker: ${ticker}`, error);
