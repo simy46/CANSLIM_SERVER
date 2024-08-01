@@ -181,8 +181,8 @@ export async function getStockDetails(ticker) {
 
     // Chart
     try {
-        data.chart = fetchChartData(ticker)
-    } catch (error) {
+        data.chart = await fetchChartData(ticker); 
+        } catch (error) {
         console.error(`Error fetching chart data for ticker: ${ticker}`, error);
         data.chart = null;
     }
