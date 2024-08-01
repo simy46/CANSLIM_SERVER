@@ -206,7 +206,7 @@ async function fetchChartData(ticker) {
         period1.setFullYear(period1.getFullYear() - 20); // 20 years ago
         const period2 = new Date(); // current date
         const period3 = new Date();
-        period3.setDate(period3.getDate() - 60); // 60 days ago (corrected to 60)
+        period3.setDate(period3.getDate() - 59); // 60 days ago (corrected to 60)
         const period4 = new Date();
         period4.setDate(period4.getDate() - 7); // 7 days ago for 1m interval
 
