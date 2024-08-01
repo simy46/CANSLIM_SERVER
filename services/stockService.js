@@ -181,6 +181,27 @@ export async function getStockDetails(ticker) {
 
     // Chart
     try {
+        data.chart = fetchChartData(ticker)
+    } catch (error) {
+        console.error(`Error fetching chart data for ticker: ${ticker}`, error);
+        data.chart = null;
+    }
+
+    // Insights
+    try {
+        const insights = await yahooFinance.insights(ticker);
+        data.insights = insights;
+    } catch (error) {
+        console.error(`Error fetching insights for ticker: ${ticker}`, error);
+        data.insights = null;
+    }
+
+    return data;
+}
+
+async function fetchChartData(ticker) {
+    const data = {};
+    try {
         const period1 = new Date();
         period1.setFullYear(period1.getFullYear() - 20); // 20 years ago
         const period2 = new Date(); // current date
@@ -258,17 +279,9 @@ export async function getStockDetails(ticker) {
         data.chart = null;
     }
 
-    // Insights
-    try {
-        const insights = await yahooFinance.insights(ticker);
-        data.insights = insights;
-    } catch (error) {
-        console.error(`Error fetching insights for ticker: ${ticker}`, error);
-        data.insights = null;
-    }
-
     return data;
 }
+
 
 
 // Stock news
