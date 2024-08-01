@@ -181,18 +181,7 @@ export async function getStockDetails(ticker) {
 
     // Chart
     try {
-        const period1 = new Date();
-        period1.setFullYear(period1.getFullYear() - 20); // 10 years ago
-        const period2 = new Date(); // current date
-        const period3 = new Date();
-        period3.setDate(period3.getDate() - 59) // 60 days ago
-
-        const chart = await yahooFinance.chart(ticker, { period1: period1.toISOString(), period2: period2.toISOString(), interval: '1d' });
-        data.chart = chart;
-
-        //const chart2 = await yahooFinance.chart(ticker, { period1: period3.toISOString(), period2: period2.toISOString(), interval: '15m' });
-        //data.chart2 = chart2;
-
+        fetchChartData(ticker)
     } catch (error) {
         console.error(`Error fetching chart data for ticker: ${ticker}`, error);
         data.chart = null;
@@ -205,6 +194,111 @@ export async function getStockDetails(ticker) {
     } catch (error) {
         console.error(`Error fetching insights for ticker: ${ticker}`, error);
         data.insights = null;
+    }
+
+    return data;
+}
+
+async function fetchChartData(ticker) {
+    const data = {};
+    try {
+        const period1 = new Date();
+        period1.setFullYear(period1.getFullYear() - 20); // 20 years ago
+        const period2 = new Date(); // current date
+        const period3 = new Date();
+        period3.setDate(period3.getDate() - 59); // 60 days ago
+
+        // Fetch daily interval data for the full 20 years
+        const dailyChart = await yahooFinance.chart(ticker, {
+            period1: period1.toISOString(),
+            period2: period2.toISOString(),
+            interval: '1d'
+        });
+        data.dailyChart = dailyChart;
+
+        // Fetch intraday data (1m interval) for the last 60 days
+        const intraday1mChart = await yahooFinance.chart(ticker, {
+            period1: period3.toISOString(),
+            period2: period2.toISOString(),
+            interval: '1m'
+        });
+        data.intraday1mChart = intraday1mChart;
+
+        // Fetch intraday data (2m interval) for the last 60 days
+        const intraday2mChart = await yahooFinance.chart(ticker, {
+            period1: period3.toISOString(),
+            period2: period2.toISOString(),
+            interval: '2m'
+        });
+        data.intraday2mChart = intraday2mChart;
+
+        // Fetch intraday data (5m interval) for the last 60 days
+        const intraday5mChart = await yahooFinance.chart(ticker, {
+            period1: period3.toISOString(),
+            period2: period2.toISOString(),
+            interval: '5m'
+        });
+        data.intraday5mChart = intraday5mChart;
+
+        // Fetch intraday data (15m interval) for the last 60 days
+        const intraday15mChart = await yahooFinance.chart(ticker, {
+            period1: period3.toISOString(),
+            period2: period2.toISOString(),
+            interval: '15m'
+        });
+        data.intraday15mChart = intraday15mChart;
+
+        // Fetch intraday data (30m interval) for the last 60 days
+        const intraday30mChart = await yahooFinance.chart(ticker, {
+            period1: period3.toISOString(),
+            period2: period2.toISOString(),
+            interval: '30m'
+        });
+        data.intraday30mChart = intraday30mChart;
+
+        // Fetch hourly data (60m interval) for the last 60 days
+        const intraday60mChart = await yahooFinance.chart(ticker, {
+            period1: period3.toISOString(),
+            period2: period2.toISOString(),
+            interval: '60m'
+        });
+        data.intraday60mChart = intraday60mChart;
+
+        // Fetch hourly data (90m interval) for the last 60 days
+        const intraday90mChart = await yahooFinance.chart(ticker, {
+            period1: period3.toISOString(),
+            period2: period2.toISOString(),
+            interval: '90m'
+        });
+        data.intraday90mChart = intraday90mChart;
+
+        // Fetch weekly interval data for the full 20 years
+        const weeklyChart = await yahooFinance.chart(ticker, {
+            period1: period1.toISOString(),
+            period2: period2.toISOString(),
+            interval: '1wk'
+        });
+        data.weeklyChart = weeklyChart;
+
+        // Fetch monthly interval data for the full 20 years
+        const monthlyChart = await yahooFinance.chart(ticker, {
+            period1: period1.toISOString(),
+            period2: period2.toISOString(),
+            interval: '1mo'
+        });
+        data.monthlyChart = monthlyChart;
+
+        // Fetch 5-day interval data for the last 60 days (additional granularity)
+        const fiveDayChart = await yahooFinance.chart(ticker, {
+            period1: period3.toISOString(),
+            period2: period2.toISOString(),
+            interval: '5d'
+        });
+        data.fiveDayChart = fiveDayChart;
+
+    } catch (error) {
+        console.error(`Error fetching chart data for ticker: ${ticker}`, error);
+        data.chart = null;
     }
 
     return data;
