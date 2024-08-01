@@ -209,6 +209,8 @@ async function fetchChartData(ticker) {
         period3.setDate(period3.getDate() - 59); // 60 days ago
         const period4 = new Date();
         period4.setDate(period4.getDate() - 7); // 7 days ago for 1m interval
+        const period5 = new Date();
+        period5.setDate(period4.getDate() - 729); // 730 days ago for 1h interval
 
         // Fetch daily interval data for the full 20 years
         const dailyChart = await yahooFinance.chart(ticker, {
@@ -252,7 +254,7 @@ async function fetchChartData(ticker) {
 
         // Fetch intraday data (60m interval) for the last 60 days
         const intraday60mChart = await yahooFinance.chart(ticker, {
-            period1: period1.toISOString(),
+            period1: period5.toISOString(),
             period2: period2.toISOString(),
             interval: '60m'
         });
