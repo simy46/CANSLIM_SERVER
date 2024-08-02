@@ -45,11 +45,18 @@ export async function getDailyGainers(count) {
 }
 
 // SEARCH SERVICE //
+/*
 export async function searchStocks(query) {
     console.log(`Recherche de stocks correspondant à : ${query}`);
     const results = await yahooFinance.search(query)
     const filteredResults = results.quotes.filter((quote) => quote.isYahooFinance)
     return filteredResults;
+} 
+    */
+export async function searchStocks(query) {
+    console.log(`Recherche de stocks correspondant à : ${query}`);
+    const results = await yahooFinance.search(query);
+    return results; // Return the entire search result object
 }
 
 // MARKET NEWS //
