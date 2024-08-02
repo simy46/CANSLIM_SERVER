@@ -55,8 +55,14 @@ export async function searchStocks(query) {
     */
 export async function searchStocks(query) {
     console.log(`Recherche de stocks correspondant à : ${query}`);
-    const results = await yahooFinance.search(query);
-    return results; // Return the entire search result object
+    let result;
+    const search = await yahooFinance.search(query);
+    const autoc = yahooFinance.autoc(query)
+
+    result.search = search;
+    result.autoc = autoc;
+
+    return result; // Return the entire search result object
 }
 
 // MARKET NEWS //
