@@ -6,6 +6,10 @@ async function getStockData(ticker) {
         throw new Error('Ticker symbol is undefined');
     }
 
+    const validation = {
+        validateResult: false
+    }
+
     const queryOptions = {
         modules: [
             'summaryDetail', 
@@ -23,17 +27,32 @@ async function getStockData(ticker) {
         ]
     };
 
+    const queryQuote = { 
+        fields: [
+            "regularMarketPrice", 
+            "shortName", 
+            "longName", 
+            "fiftyTwoWeekHigh", 
+            "trailingAnnualDividendYield", 
+            "fiftyTwoWeekLow", 
+            "epsTrailingTwelveMonths", 
+            "epsCurrentYear", 
+            "sharesOutstanding"
+        ] 
+    }
+
     const stockData = {};
 
     try {
-        stockData.quoteSummary = await yahooFinance.quoteSummary(ticker, queryOptions, { validateResult: false });
+        stockData.quoteSummary = await yahooFinance.quoteSummary(ticker, queryOptions, validation);
     } catch (error) {
         console.error(`Error fetching quote summary for ticker: ${ticker}`, error);
-        stockData.quoteSummaryError = error.message;
+        stockData.quoteSummary = {};
     }
 
     try {
-        stockData.stockInfo = await yahooFinance.quote(ticker, { fields: ["regularMarketPrice", "shortName", "longName", "fiftyTwoWeekHigh", "trailingAnnualDividendYield", "fiftyTwoWeekLow", "epsTrailingTwelveMonths", "epsCurrentYear", "sharesOutstanding"] });
+        
+        stockData.stockInfo = await yahooFinance.quote(ticker, queryQuote, validation);
         const { regularMarketPrice, fiftyTwoWeekHigh } = stockData.stockInfo;
         stockData.percentOffHigh = ((1 - (regularMarketPrice / fiftyTwoWeekHigh)) * 100).toFixed(2);
     } catch (error) {
