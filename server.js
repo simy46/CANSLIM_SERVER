@@ -22,13 +22,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 
-// Middleware to log new HTTP requests
+// Middleware pour journaliser les nouvelles requêtes HTTP
 app.use((request, _, next) => {
     const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
     const method = request.method;
     const url = request.url;
-    
-    // Simplifier les informations du user-agent
+
+    // Simplification des informations du user-agent
     let userAgent = request.headers['user-agent'] || 'Unknown';
     if (userAgent.includes('Windows')) {
         userAgent = 'Windows';
@@ -48,18 +48,18 @@ app.use((request, _, next) => {
         userAgent = 'Other';
     }
 
-    // Codage des couleurs
-    const methodColor = chalk.blue(method);
-    const urlColor = chalk.green(url);
+    // Application des couleurs
+    const methodColor = chalk.blue.bold(method);
+    const urlColor = chalk.green.bold(url);
     const userAgentColor = chalk.yellow(userAgent);
     const ipColor = chalk.cyan(ip);
 
-    const logMessage = `
-    ${chalk.magenta('--------------------')}
-    ${methodColor} - ${urlColor} - ${userAgentColor} [${ipColor}]
-    ${chalk.magenta('--------------------')}
-    `;
-    
+    // Construction du message de log
+    const logMessage = `${chalk.magenta('----------------------------------')}
+    ${methodColor} ${chalk.white('-')} ${urlColor} ${chalk.white('-')} ${userAgentColor} ${chalk.white('[')}${ipColor}${chalk.white(']')}
+    ${chalk.magenta('----------------------------------')}`;
+
+    // Affichage du log
     console.log(logMessage);
     next();
 });
