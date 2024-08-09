@@ -29,24 +29,15 @@ app.use((request, _, next) => {
     const url = request.url;
 
     // Simplification des informations du user-agent
-    let userAgent = request.headers['user-agent'] || 'Unknown';
-    if (userAgent.includes('Windows')) {
-        userAgent = 'Windows';
-    } else if (userAgent.includes('Macintosh')) {
-        userAgent = 'Mac';
-    } else if (userAgent.includes('Linux')) {
-        userAgent = 'Linux';
-    } else {
-        userAgent = 'Other';
-    }
+    const userAgentMap = {
+        'Windows': 'Windows',
+        'Macintosh': 'Mac',
+        'Linux': 'Linux',
+        'Safari': 'Safari',
+        'Chrome': 'Chrome',
+    };
 
-    if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
-        userAgent = 'Safari';
-    } else if (userAgent.includes('Chrome')) {
-        userAgent = 'Chrome';
-    } else {
-        userAgent = 'Other';
-    }
+    let userAgent = Object.keys(userAgentMap).find(key => request.headers['user-agent']?.includes(key)) || 'Other';
 
     // Application des couleurs
     const methodColor = chalk.blue.bold(method);
@@ -55,9 +46,9 @@ app.use((request, _, next) => {
     const ipColor = chalk.cyan(ip);
 
     // Construction du message de log
-    const logMessage = `${chalk.magenta('----------------------------------')}
-    ${methodColor} ${chalk.white('-')} ${urlColor} ${chalk.white('-')} ${userAgentColor} ${chalk.white('[')}${ipColor}${chalk.white(']')}
-    ${chalk.magenta('----------------------------------')}`;
+    const logMessage = `${chalk.magenta('--------------------------------------------------------------------')}
+${methodColor} ${chalk.white('-')} ${urlColor} ${chalk.white('-')} ${userAgentColor} ${chalk.white('[')}${ipColor}${chalk.white(']')}
+${chalk.magenta('--------------------------------------------------------------------')}`;
 
     // Affichage du log
     console.log(logMessage);
