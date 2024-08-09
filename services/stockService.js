@@ -19,7 +19,6 @@ export async function getInitialStocks() {
     return results;
 }
 
-
 export async function getTrendingStocks(count) {
     const options = {
         count: count,

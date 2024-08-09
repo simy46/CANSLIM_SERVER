@@ -5,6 +5,8 @@ import { generateETag } from './services/etag.js';
 import * as services from './services/stockService.js';
 import { checkStock } from './services/checklistCalculator.js';
 import HTTP_STATUS from './services/http.js';
+import chalk from 'chalk';
+
 
 const app = express();
 const PORT = process.env.PORT || 5020;
@@ -25,9 +27,39 @@ app.use((request, _, next) => {
     const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
     const method = request.method;
     const url = request.url;
-    const userAgent = request.headers['user-agent'] || 'Unknown';
+    
+    // Simplifier les informations du user-agent
+    let userAgent = request.headers['user-agent'] || 'Unknown';
+    if (userAgent.includes('Windows')) {
+        userAgent = 'Windows';
+    } else if (userAgent.includes('Macintosh')) {
+        userAgent = 'Mac';
+    } else if (userAgent.includes('Linux')) {
+        userAgent = 'Linux';
+    } else {
+        userAgent = 'Other';
+    }
 
-    const logMessage = `Request ${method} - ${url} - ${userAgent} [${ip}]`;
+    if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+        userAgent = 'Safari';
+    } else if (userAgent.includes('Chrome')) {
+        userAgent = 'Chrome';
+    } else {
+        userAgent = 'Other';
+    }
+
+    // Codage des couleurs
+    const methodColor = chalk.blue(method);
+    const urlColor = chalk.green(url);
+    const userAgentColor = chalk.yellow(userAgent);
+    const ipColor = chalk.cyan(ip);
+
+    const logMessage = `
+    ${chalk.magenta('--------------------')}
+    ${methodColor} - ${urlColor} - ${userAgentColor} [${ipColor}]
+    ${chalk.magenta('--------------------')}
+    `;
+    
     console.log(logMessage);
     next();
 });
