@@ -90,7 +90,7 @@ app.get('/api/stocks/trending', async (req, res) => {
  */  
 app.get('/api/stocks/daily-gainers', async (req, res) => {
     try {
-        const stocks = await services.getDailyGainers(10);
+        const stocks = await services.getDailyGainers(16);
         res.status(HTTP_STATUS.SUCCESS).json(stocks);
     } catch (error) {
         console.error('Erreur lors de la récupération des stocks:', error);
@@ -127,7 +127,7 @@ app.post('/api/market-news', async (req, res) => {
         let { tickers } = req.body;
         
         if (!Array.isArray(tickers) || tickers.length === 0) {
-            tickers = await services.getTrendingStocks(10);
+            tickers = await services.getTrendingStocks(16);
         }
 
         const news = await services.getMarketData(tickers);

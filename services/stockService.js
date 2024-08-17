@@ -2,7 +2,7 @@ import yahooFinance from 'yahoo-finance2';
 
 // TRENDING STOCKS //
 export async function getInitialStocks() {
-    const stocks = await getTrendingStocks(10);
+    const stocks = await getTrendingStocks(16);
     const fields = {
         fields: [
             "displayName", "longName", "symbol", "regularMarketPrice", "currency",
@@ -72,7 +72,6 @@ export async function getMarketData(stocks) {
 
     const dataResults = await Promise.all(dataPromises);
 
-    // Combine all results into a single object with each category
     const combinedResults = {
         news: [],
         nav: [],
@@ -80,7 +79,6 @@ export async function getMarketData(stocks) {
         researchReports: []
     };
 
-    // Use a Set to track unique news UUIDs
     const newsUUIDs = new Set();
 
     dataResults.forEach(result => {
@@ -91,8 +89,6 @@ export async function getMarketData(stocks) {
             }
         });
 
-        // Since nav, lists, and researchReports are empty in this example,
-        // if you have actual data for these categories, you can process them similarly.
         combinedResults.nav.push(...result.nav);
         combinedResults.lists.push(...result.lists);
         combinedResults.researchReports.push(...result.researchReports);
@@ -113,7 +109,6 @@ async function fetchAndProcessNews(ticker, newsCount) {
     const stock = await yahooFinance.search(ticker, queryOptions);
     const news = stock.news || [];
 
-    // Utiliser un Set pour éliminer les doublons basés sur l'UUID
     const uniqueNews = [];
     const newsUUIDs = new Set();
 
@@ -130,7 +125,6 @@ async function fetchAndProcessNews(ticker, newsCount) {
 
 export async function getStockDetails(ticker) {
     const data = {};
-
     // Quote Summary & Profile
     try {
         const module = {
@@ -219,7 +213,6 @@ async function fetchChartData(ticker) {
         const period5 = new Date();
         period5.setDate(period2.getDate() - 729); // 730 days ago for 1h interval
 
-        // Fetch daily interval data for the full 20 years
         const dailyChart = await yahooFinance.chart(ticker, {
             period1: period1.toISOString(),
             period2: period2.toISOString(),
@@ -227,15 +220,13 @@ async function fetchChartData(ticker) {
         });
         data.dailyChart = dailyChart;
 
-        // Fetch intraday data (1m interval) for the last 7 days only
         const intraday1mChart = await yahooFinance.chart(ticker, {
-            period1: period4.toISOString(), // 7 days ago
+            period1: period4.toISOString(),
             period2: period2.toISOString(),
             interval: '1m'
         });
         data.intraday1mChart = intraday1mChart;
 
-        // Fetch intraday data (5m interval) for the last 60 days
         const intraday5mChart = await yahooFinance.chart(ticker, {
             period1: period4.toISOString(),
             period2: period2.toISOString(),
@@ -243,7 +234,6 @@ async function fetchChartData(ticker) {
         });
         data.intraday5mChart = intraday5mChart;
 
-        // Fetch intraday data (15m interval) for the last 60 days
         const intraday15mChart = await yahooFinance.chart(ticker, {
             period1: period3.toISOString(),
             period2: period2.toISOString(),
@@ -251,7 +241,6 @@ async function fetchChartData(ticker) {
         });
         data.intraday15mChart = intraday15mChart;
 
-        // Fetch intraday data (30m interval) for the last 60 days
         const intraday30mChart = await yahooFinance.chart(ticker, {
             period1: period3.toISOString(),
             period2: period2.toISOString(),
@@ -259,7 +248,6 @@ async function fetchChartData(ticker) {
         });
         data.intraday30mChart = intraday30mChart;
 
-        // Fetch intraday data (60m interval) for the last 60 days
         const intraday60mChart = await yahooFinance.chart(ticker, {
             period1: period5.toISOString(),
             period2: period2.toISOString(),
@@ -267,7 +255,6 @@ async function fetchChartData(ticker) {
         });
         data.intraday60mChart = intraday60mChart;
 
-        // Fetch weekly data for a broader overview
         const weeklyChart = await yahooFinance.chart(ticker, {
             period1: period1.toISOString(),
             period2: period2.toISOString(),
@@ -275,7 +262,6 @@ async function fetchChartData(ticker) {
         });
         data.weeklyChart = weeklyChart;
 
-        // Fetch monthly data for a broad view of historical performance
         const monthlyChart = await yahooFinance.chart(ticker, {
             period1: period1.toISOString(),
             period2: period2.toISOString(),
