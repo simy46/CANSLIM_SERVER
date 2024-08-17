@@ -46,9 +46,9 @@ app.use((request, _, next) => {
     const ipColor = chalk.cyan(ip);
 
     // Construction du message de log
-    const logMessage = `${chalk.magenta('--------------------------------------------------------------------')}
-${methodColor} ${chalk.white('-')} ${urlColor} ${chalk.white('-')} ${userAgentColor} ${chalk.white('[')}${ipColor}${chalk.white(']')}
-${chalk.magenta('--------------------------------------------------------------------')}`;
+    const logMessage = `${chalk.magenta('-----------------------------------------------------------')}
+${methodColor} ${chalk.white('-')} ${urlColor} ${chalk.white('-')} ${userAgentColor} ${chalk.white('[')}${ipColor}${chalk.white('] |')}
+${chalk.magenta('-----------------------------------------------------------')}`;
 
     // Affichage du log
     console.log(logMessage);

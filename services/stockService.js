@@ -62,7 +62,7 @@ export async function searchStocks(query) {
 // MARKET NEWS //
 export async function getMarketData(stocks) {
     const dataPromises = stocks.map(stock =>
-        fetchAndProcessNews(stock, 2).then(news => ({
+        fetchAndProcessNews(stock, 4).then(news => ({
             news: news,
             nav: [],
             lists: [],
