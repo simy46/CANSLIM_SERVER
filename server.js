@@ -1,5 +1,4 @@
 import express from 'express';
-import axios from 'axios';
 import cors from 'cors';
 import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
@@ -19,10 +18,9 @@ const corsOptions = {
 };
 
 app.use(useragent.express());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
-app.use(bodyParser.json({ limit: '10mb' }));
 
 // Middleware pour journaliser les nouvelles requêtes HTTP
 app.use((request, _, next) => {
