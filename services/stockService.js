@@ -1,4 +1,6 @@
 import yahooFinance from 'yahoo-finance2';
+import axios from 'axios';
+
 
 // TRENDING STOCKS //
 export async function getInitialStocks() {
@@ -282,4 +284,30 @@ async function fetchChartData(ticker) {
 // Stock news
 async function getStockNews(ticker) {
     return await fetchAndProcessNews(ticker, 20);
+}
+
+// Imgur 
+export async function uploadToImgur(base64Image) {
+    const clientId = '445f42d7144f9bf'; // Votre Client ID
+
+    try {
+        const response = await axios.post('https://api.imgur.com/3/image', {
+            image: base64Image,
+            type: 'base64'
+        }, {
+            headers: {
+                Authorization: `Client-ID ${clientId}`
+            }
+        });
+
+        if (response.data.success) {
+            return response.data.data.link; // Retourne le lien public de l'image
+        } else {
+            console.error('Erreur lors du téléchargement sur Imgur:', response.data);
+            return null;
+        }
+    } catch (error) {
+        console.error('Erreur lors de la requête vers Imgur:', error);
+        return null;
+    }
 }

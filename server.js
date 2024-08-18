@@ -1,4 +1,5 @@
 import express from 'express';
+import axios from 'axios';
 import cors from 'cors';
 import useragent from 'express-useragent';
 import { generateETag } from './services/etag.js';
@@ -21,6 +22,7 @@ app.use(useragent.express());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
+app.use(bodyParser.json({ limit: '10mb' }));
 
 // Middleware pour journaliser les nouvelles requêtes HTTP
 app.use((request, _, next) => {
@@ -55,11 +57,39 @@ ${chalk.magenta('-----------------------------------------------------------')}`
     next();
 });
 
-
 app.get('/', (_, res) => {
     res.status(200).send('Welcome to the CANSLIM Calculator API');
 });
 
+/**
+ * @route POST /upload-image
+ * @description Uploads a base64-encoded image to Imgur and returns the URL of the uploaded image.
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - The request body
+ * @param {string} req.body.base64Image - The base64-encoded image string
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON containing the image URL or an error message
+ * @returns {string} res.imageUrl - The URL of the uploaded image on Imgur
+ * @returns {string} res.error - The error message if the upload fails
+ * @throws {400} If the base64Image is not provided in the request body
+ * @throws {500} If the upload to Imgur fails
+ * @memberof module:routes/
+ */
+app.post('/upload-image', async (req, res) => {
+    const { base64Image } = req.body;
+
+    if (!base64Image) {
+        return res.status(400).json({ error: 'Image is required' });
+    }
+
+    const imageUrl = await services.uploadToImgur(base64Image);
+
+    if (imageUrl) {
+        return res.json({ imageUrl });
+    } else {
+        return res.status(500).json({ error: 'Failed to upload image to Imgur' });
+    }
+});
 
 /**
  * Retrieves the initial list of stocks.
