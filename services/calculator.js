@@ -1,3 +1,56 @@
+// OVERALL //
+export function calculateOverallCANSLIM(stockData) {
+    let totalWeight = 0;
+    let totalScore = 0;
+    let validCriteriaCount = 0;
+
+    const criteria = [
+        stockData.marketTrend,
+        stockData.compositeRatingResult,
+        stockData.epsRatingResult,
+        stockData.epsGrowth,
+        stockData.acceleratingEarningsGrowth,
+        stockData.annualEpsGrowth,
+        stockData.salesGrowth,
+        stockData.roe,
+        stockData.smrRating,
+        stockData.increaseInFundsOwnership,
+        stockData.accumulationDistributionRating,
+        stockData.relativeStrengthRating,
+        stockData.currentSharePrice,
+        stockData.averageDailyVolume,
+        stockData.breakingOutOfSoundBase,
+        stockData.volumeAboveAverage,
+        stockData.rsLine,
+        stockData.withinBuyPoint
+    ];
+
+    criteria.forEach(criterion => {
+        if (criterion.bool !== undefined && criterion.bool !== null) {
+            totalScore += criterion.bool ? criterion.weight : 0;
+            totalWeight += criterion.weight;
+            validCriteriaCount++;
+        }
+    });
+
+    if (validCriteriaCount < 3) {
+        return { overallScore: null, rating: 'Insufficient Data' };
+    }
+
+    const overallScore = (totalScore / totalWeight) * 100;
+
+    let rating;
+    if (overallScore >= 70) {
+        rating = 'bon';
+    } else if (overallScore >= 40) {
+        rating = 'moyen';
+    } else {
+        rating = 'rouge';
+    }
+
+    return { overallScore: overallScore.toFixed(2), rating };
+}
+
 // MARKET TREND //
 function calculateEMA(data, period) {
     const prices = data.map(entry => entry.close);
