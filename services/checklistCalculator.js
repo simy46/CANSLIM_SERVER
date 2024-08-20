@@ -228,7 +228,7 @@ function calculateChecklist(stockData) {
         withinBuyPoint: calculations.calculateWithinBuyPoint(currentPrice, stockData.historicalPrices),
     };
 
-    const overall = calculateOverallCANSLIM(results);
+    const overall = calculations.calculateOverallCANSLIM(results);
 
     results.overall = overall
 
